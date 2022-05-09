@@ -1,10 +1,19 @@
 name: 'shellcheck'
 description: 'Shellcheck for sources'
 
-env:
-  GITHUB_REPO: ${{ github.workspace }}
+inputs:
+  workdir:
+    description: 'Working directory'
+    default: '/github/workspace'
+  script:
+    description: 'Script'
+  args:
+    description: 'Arguments'
 
 runs:
   using: 'docker'
-  image: 'docker/Dockerfile.test'
-  options: -v ${{ env.GITHUB_REPO }}:/opt/sh.wrap
+  image: 'docker/Dockerfile'
+  args:
+    - ${{ inputs.workdir }}
+    - ${{ inputs.script }}
+    - ${{ inputs.args }}
