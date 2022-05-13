@@ -2,6 +2,7 @@
 #+FILETAGS: #project #task sh.wrap
 #+OPTIONS: ^:nil toc:nil num:nil author:nil timestamp:nil
 #+COLUMNS: %50ITEM TODO %3PRIORITY %Effort %Effort(Effort Children){:} %10CLOCKSUM
+#+OPTIONS: h:1 prop:t d:t
 
 * sh.wrap (project tasks)
   :PROPERTIES:
