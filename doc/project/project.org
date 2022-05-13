@@ -25,7 +25,7 @@
 *** STARTED Create a branch for project tracking                     :ACTIVE:
     SCHEDULED: <2022-05-13 Fri>
     :LOGBOOK:
-    CLOCK: [2022-05-13 Fri 19:43]
+    CLOCK: [2022-05-13 Fri 19:43]--[2022-05-13 Fri 21:10] =>  1:27
     CLOCK: [2022-05-13 Fri 19:34]--[2022-05-13 Fri 19:35] =>  0:01
     - State "STARTED"    from "NEXT"       [2022-05-13 Fri 19:27]
     :END:
