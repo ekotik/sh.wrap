@@ -1,0 +1,509 @@
+#+CATEGORY: ░ SH.WRAP ░
+#+FILETAGS: #project #task sh.wrap
+#+OPTIONS: ^:nil toc:nil num:nil author:nil timestamp:nil
+#+COLUMNS: %50ITEM TODO %3PRIORITY %Effort %Effort(Effort Children){:} %10CLOCKSUM
+
+* sh.wrap (project tasks)
+  :PROPERTIES:
+  :CATEGORY: ░ SH.WRAP ░
+  :END:
+
+** Code: sh.wrap (project tasks)
+
+*** Code: core (project tasks)
+
+**** NEXT Add function to scope
+
+**** NEXT Add module caching
+
+** Docs: sh.wrap (project tasks)
+
+*** NEXT Add README
+
+** Infra: sh.wrap (project tasks)
+
+*** STARTED Create a branch for project tracking                     :ACTIVE:
+    SCHEDULED: <2022-05-13 Fri>
+    :LOGBOOK:
+    CLOCK: [2022-05-13 Fri 19:43]
+    CLOCK: [2022-05-13 Fri 19:34]--[2022-05-13 Fri 19:35] =>  0:01
+    - State "STARTED"    from "NEXT"       [2022-05-13 Fri 19:27]
+    :END:
+
+** Plan: sh.wrap (project tasks)
+
+*** Plan: Milestone 0.0.1 (project tasks):
+
+**** NEXT Milestone 0.0.1: Select tasks from current active/backlog/stuck task pools
+
+*** Plan: Roadmap (project tasks)
+
+**** NEXT Write requirements for milestone 0.0.1
+
+** QA: sh.wrap (project tasks)
+
+*** NEXT Add issue/pr templates
+
+* sh.wrap (project backlog)                                        :#backlog:
+  :PROPERTIES:
+  :CATEGORY: ▪ SH.WRAP ▪
+  :END:
+
+
+** Code: sh.wrap (project backlog)
+
+*** TODO Implement ccache module
+
+*** TODO Implement cert module
+
+*** TODO Implement config module
+
+*** TODO Implement git module
+
+*** TODO Implement path module
+
+*** TODO Implement repo module
+
+**** TODO Implement github module
+
+**** TODO Implement gitlab module
+
+*** TODO Implement scheduler module
+
+*** TODO Implement test module
+
+**** TODO Implement profile module
+
+*** Code: core (project backlog)
+
+**** NEXT Add script for bashrc
+
+** Docs: sh.wrap (project backlog)
+
+*** NEXT Add license
+
+*** TODO Choose documentation system for the project
+
+*** TODO Choose knowledge system for the project
+
+*** TODO Describe useful workflows on the project
+
+** Infra: sh.wrap (project backlog)
+
+*** NEXT Write script to sync working repositories with upstream
+
+** Plan: sh.wrap (project backlog)
+
+*** TODO Describe sh.wrap purpose and vision
+
+*** TODO Write project review/report templates
+
+*** Plan: Milestone 0.0.1 (project backlog):
+    :PROPERTIES:
+    :sort:     false
+    :END:
+
+**** DEPENDENCY [[*Write requirements for milestone 0.0.1][Write requirements for milestone 0.0.1]]
+
+**** NEXT Milestone 0.0.1: Estimate tasks effort
+
+**** TODO Milestone 0.0.1: Schedule tasks
+
+**** TODO Milestone 0.0.1: Update roadmap
+
+*** Plan: Roadmap (project backlog)
+
+**** NEXT Create roadmap diagram
+
+**** DEPENDENCY [[*Describe sh.wrap purpose and vision][Describe sh.wrap purpose and vision]]
+
+** QA: sh.wrap (project backlog)
+
+*** NEXT Write tests for core functions
+
+* sh.wrap (project stuck)                                            :#stuck:
+  :PROPERTIES:
+  :CATEGORY: □ SH.WRAP □
+  :END:
+
+* sh.wrap (habits)                                                   :#habit:
+  :PROPERTIES:
+  :CATEGORY: ■ SH.WRAP ■
+  :END:
+
+** Plan: sh.wrap (habits)
+
+*** Daily task planning
+<%%(identity date)>
+
+*** Daily task report
+<%%(identity date)>
+
+*** Daily task review
+<%%(identity date)>
+
+*** Daily task sorting
+<%%(identity date)>
+
+* sh.wrap (project goals)                                      :ACTIVE:#list:
+  :PROPERTIES:
+  :CATEGORY: ▇ SH.WRAP ▇
+  :END:
+
+** Code: sh.wrap (project goals)
+
+*** GOAL Collection of useful shell scripts [0/2]
+
+    - [ ] gpg functions
+    - [ ] git functions
+
+*** GOAL Maintainable shell scripts repository [0/2]
+
+    - [ ] Shell scripts are at known locations
+    - [ ] Shell scripts are reusable
+
+* sh.wrap (project archive)                                           :#list:
+  :PROPERTIES:
+  :CATEGORY: ░ SH.WRAP ░
+  :END:
+
+** Code: sh.wrap (project archive)
+#+CATEGORY: ░ SH.WRAP ░
+#+FILETAGS: #project #task sh.wrap
+#+OPTIONS: ^:nil toc:nil num:nil author:nil timestamp:nil
+#+COLUMNS: %50ITEM TODO %3PRIORITY %Effort %Effort(Effort Children){:} %10CLOCKSUM
+
+* sh.wrap (project tasks)
+  :PROPERTIES:
+  :CATEGORY: ░ SH.WRAP ░
+  :END:
+
+** Code: sh.wrap (project tasks)
+
+*** Code: core (project tasks)
+
+**** NEXT Add function to scope
+
+**** NEXT Add module caching
+
+** Docs: sh.wrap (project tasks)
+
+*** NEXT Add README
+
+** Infra: sh.wrap (project tasks)
+
+*** STARTED Create a branch for project tracking                     :ACTIVE:
+    SCHEDULED: <2022-05-13 Fri>
+    :LOGBOOK:
+    CLOCK: [2022-05-13 Fri 19:43]
+    CLOCK: [2022-05-13 Fri 19:34]--[2022-05-13 Fri 19:35] =>  0:01
+    - State "STARTED"    from "NEXT"       [2022-05-13 Fri 19:27]
+    :END:
+
+** Plan: sh.wrap (project tasks)
+
+*** Plan: Milestone 0.0.1 (project tasks):
+
+**** NEXT Milestone 0.0.1: Select tasks from current active/backlog/stuck task pools
+
+*** Plan: Roadmap (project tasks)
+
+**** NEXT Write requirements for milestone 0.0.1
+
+** QA: sh.wrap (project tasks)
+
+*** NEXT Add issue/pr templates
+
+* sh.wrap (project backlog)                                        :#backlog:
+  :PROPERTIES:
+  :CATEGORY: ▪ SH.WRAP ▪
+  :END:
+
+
+** Code: sh.wrap (project backlog)
+
+*** TODO Implement ccache module
+
+*** TODO Implement cert module
+
+*** TODO Implement config module
+
+*** TODO Implement git module
+
+*** TODO Implement path module
+
+*** TODO Implement repo module
+
+**** TODO Implement github module
+
+**** TODO Implement gitlab module
+
+*** TODO Implement scheduler module
+
+*** TODO Implement test module
+
+**** TODO Implement profile module
+
+*** Code: core (project backlog)
+
+**** NEXT Add script for bashrc
+
+** Docs: sh.wrap (project backlog)
+
+*** NEXT Add license
+
+*** TODO Choose documentation system for the project
+
+*** TODO Choose knowledge system for the project
+
+*** TODO Describe useful workflows on the project
+
+** Infra: sh.wrap (project backlog)
+
+*** NEXT Write script to sync working repositories with upstream
+
+** Plan: sh.wrap (project backlog)
+
+*** TODO Describe sh.wrap purpose and vision
+
+*** TODO Write project review/report templates
+
+*** Plan: Milestone 0.0.1 (project backlog):
+    :PROPERTIES:
+    :sort:     false
+    :END:
+
+**** DEPENDENCY [[*Write requirements for milestone 0.0.1][Write requirements for milestone 0.0.1]]
+
+**** NEXT Milestone 0.0.1: Estimate tasks effort
+
+**** TODO Milestone 0.0.1: Schedule tasks
+
+**** TODO Milestone 0.0.1: Update roadmap
+
+*** Plan: Roadmap (project backlog)
+
+**** NEXT Create roadmap diagram
+
+**** DEPENDENCY [[*Describe sh.wrap purpose and vision][Describe sh.wrap purpose and vision]]
+
+** QA: sh.wrap (project backlog)
+
+*** NEXT Write tests for core functions
+
+* sh.wrap (project stuck)                                            :#stuck:
+  :PROPERTIES:
+  :CATEGORY: □ SH.WRAP □
+  :END:
+
+* sh.wrap (habits)                                                   :#habit:
+  :PROPERTIES:
+  :CATEGORY: ■ SH.WRAP ■
+  :END:
+
+** Plan: sh.wrap (habits)
+
+*** Daily task planning
+<%%(identity date)>
+
+*** Daily task report
+<%%(identity date)>
+
+*** Daily task review
+<%%(identity date)>
+
+*** Daily task sorting
+<%%(identity date)>
+
+* sh.wrap (project goals)                                      :ACTIVE:#list:
+  :PROPERTIES:
+  :CATEGORY: ▇ SH.WRAP ▇
+  :END:
+
+** Code: sh.wrap (project goals)
+
+*** GOAL Collection of useful shell scripts [0/2]
+
+    - [ ] gpg functions
+    - [ ] git functions
+
+*** GOAL Maintainable shell scripts repository [0/2]
+
+    - [ ] Shell scripts are at known locations
+    - [ ] Shell scripts are reusable
+
+* sh.wrap (project archive)                                           :#list:
+  :PROPERTIES:
+  :CATEGORY: ░ SH.WRAP ░
+  :END:
+
+** Code: sh.wrap (project archive)
+#+CATEGORY: ░ SH.WRAP ░
+#+FILETAGS: #project #task sh.wrap
+#+OPTIONS: ^:nil toc:nil num:nil author:nil timestamp:nil
+#+COLUMNS: %50ITEM TODO %3PRIORITY %Effort %Effort(Effort Children){:} %10CLOCKSUM
+
+* sh.wrap (project tasks)
+  :PROPERTIES:
+  :CATEGORY: ░ SH.WRAP ░
+  :END:
+
+** Code: sh.wrap (project tasks)
+
+*** Code: core (project tasks)
+
+**** NEXT Add function to scope
+
+**** NEXT Add module caching
+
+** Docs: sh.wrap (project tasks)
+
+*** NEXT Add README
+
+** Infra: sh.wrap (project tasks)
+
+*** STARTED Create a branch for project tracking                     :ACTIVE:
+    SCHEDULED: <2022-05-13 Fri>
+    :LOGBOOK:
+    CLOCK: [2022-05-13 Fri 19:43]
+    CLOCK: [2022-05-13 Fri 19:34]--[2022-05-13 Fri 19:35] =>  0:01
+    - State "STARTED"    from "NEXT"       [2022-05-13 Fri 19:27]
+    :END:
+
+** Plan: sh.wrap (project tasks)
+
+*** Plan: Milestone 0.0.1 (project tasks):
+
+**** NEXT Milestone 0.0.1: Select tasks from current active/backlog/stuck task pools
+
+*** Plan: Roadmap (project tasks)
+
+**** NEXT Write requirements for milestone 0.0.1
+
+** QA: sh.wrap (project tasks)
+
+*** NEXT Add issue/pr templates
+
+* sh.wrap (project backlog)                                        :#backlog:
+  :PROPERTIES:
+  :CATEGORY: ▪ SH.WRAP ▪
+  :END:
+
+** Code: sh.wrap (project backlog)
+
+*** TODO Implement ccache module
+
+*** TODO Implement cert module
+
+*** TODO Implement config module
+
+*** TODO Implement git module
+
+*** TODO Implement path module
+
+*** TODO Implement repo module
+
+**** TODO Implement github module
+
+**** TODO Implement gitlab module
+
+*** TODO Implement scheduler module
+
+*** TODO Implement test module
+
+**** TODO Implement profile module
+
+*** Code: core (project backlog)
+
+**** NEXT Add script for bashrc
+
+** Docs: sh.wrap (project backlog)
+
+*** NEXT Add license
+
+*** TODO Choose documentation system for the project
+
+*** TODO Choose knowledge system for the project
+
+*** TODO Describe useful workflows on the project
+
+** Infra: sh.wrap (project backlog)
+
+*** NEXT Write script to sync working repositories with upstream
+
+** Plan: sh.wrap (project backlog)
+
+*** TODO Describe sh.wrap purpose and vision
+
+*** TODO Write project review/report templates
+
+*** Plan: Milestone 0.0.1 (project backlog):
+    :PROPERTIES:
+    :sort:     false
+    :END:
+
+**** DEPENDENCY [[*Write requirements for milestone 0.0.1][Write requirements for milestone 0.0.1]]
+
+**** NEXT Milestone 0.0.1: Estimate tasks effort
+
+**** TODO Milestone 0.0.1: Schedule tasks
+
+**** TODO Milestone 0.0.1: Update roadmap
+
+*** Plan: Roadmap (project backlog)
+
+**** NEXT Create roadmap diagram
+
+**** DEPENDENCY [[*Describe sh.wrap purpose and vision][Describe sh.wrap purpose and vision]]
+
+** QA: sh.wrap (project backlog)
+
+*** NEXT Write tests for core functions
+
+* sh.wrap (project stuck)                                            :#stuck:
+  :PROPERTIES:
+  :CATEGORY: □ SH.WRAP □
+  :END:
+
+* sh.wrap (habits)                                                   :#habit:
+  :PROPERTIES:
+  :CATEGORY: ■ SH.WRAP ■
+  :END:
+
+** Plan: sh.wrap (habits)
+
+*** Daily task planning
+<%%(identity date)>
+
+*** Daily task report
+<%%(identity date)>
+
+*** Daily task review
+<%%(identity date)>
+
+*** Daily task sorting
+<%%(identity date)>
+
+* sh.wrap (project goals)                                      :ACTIVE:#list:
+  :PROPERTIES:
+  :CATEGORY: ▇ SH.WRAP ▇
+  :END:
+
+** Code: sh.wrap (project goals)
+
+*** GOAL Collection of useful shell scripts [0/2]
+
+    - [ ] gpg functions
+    - [ ] git functions
+
+*** GOAL Maintainable shell scripts repository [0/2]
+
+    - [ ] Shell scripts are at known locations
+    - [ ] Shell scripts are reusable
+
+* sh.wrap (project archive)                                           :#list:
+  :PROPERTIES:
+  :CATEGORY: ░ SH.WRAP ░
+  :END:
+
+** Code: sh.wrap (project archive)
