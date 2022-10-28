@@ -1,3 +1,5 @@
+#!/bin/bash
+# shellcheck disable=all
 # sh.wrap - module system for bash
 
 unset _scope
@@ -17,28 +19,6 @@ function _get_module_path()
 	_MODULE_PATH="$_module_path"
 	_module::export _MODULE_PATH
 	declare -pg _MODULE_PATH
-}
-
-function _check_scope()
-{
-	local module_id="$1"
-	local key;
-	local ret=1
-	for key in "${!_scope[@]}"; do
-		if [[ "$key" == "$module_id" ]]; then
-			ret=0
-			break
-		fi
-	done
-	return $ret
-}
-
-function _create_scope()
-{
-	local module_id="$1"
-	if ! _check_scope "$module"; then
-	   _scope["$module_id"]=$(_get_scope)
-	fi
 }
 
 function _get_scope()
