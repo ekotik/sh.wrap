@@ -3,7 +3,7 @@ name: "Build and publish hugo site"
 permissions: {}
 
 concurrency:
-  group: "${{ github.workflow }}-${{ github.ref }}-actions-${{ github.run_id }}-${{ inputs.run_id }}""
+  group: "${{ github.workflow }}-${{ github.ref }}-actions-${{ github.run_id }}-${{ inputs.run_id }}"
   cancel-in-progress: false
 
 on:
