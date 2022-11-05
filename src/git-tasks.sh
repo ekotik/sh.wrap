@@ -72,7 +72,7 @@ gh_bin=$(realpath "$1")
 git_repo="$2"
 git_branch="$3"
 shift 3
-git_commands="$@"
+git_commands="$*"
 reset_xtrace
 gh_token="${GITHUB_TOKEN}"
 restore_xtrace
