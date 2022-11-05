@@ -66,11 +66,11 @@ function org_to_md()
 }
 
 # greetings for github runner
-echo '::notice::Pandoc convection action started!' | gh_echo
+echo '::notice::Pandoc conversion action started!' | gh_echo
 
 # generate documentation
 echo '::group::Convert docs' | gh_echo
-LAST_ERROR="convertation failed"
+LAST_ERROR="conversion failed"
 while IFS= read -d $'\0' -r path; do
 	dir=$(dirname $(realpath -m -s "$path" --relative-base "$in_dir"))
 	file=$(basename "$path")
