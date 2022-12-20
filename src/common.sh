@@ -4,7 +4,7 @@
 # Common global, environment variables and function definitions for them.
 
 declare -x _SHWRAP_MODULE_PATH=~/.sh.wrap
-declare -x _SHWRAP_MODULE="${_SHWRAP_MODULE_PATH}"/sh.wrap/module.sh
+declare -x _SHWRAP_MODULE="${SHWRAP_INIT_DIR}"/module.sh
 declare -x _SHWRAP_TMP_PATH=/tmp/sh.wrap
 declare -ax SHWRAP_MODULE_PATHS
 

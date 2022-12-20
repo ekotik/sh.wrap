@@ -3,8 +3,8 @@
 # module.sh
 # Core of sh.wrap module system.
 
-source common.sh
-source import.sh
-source run.sh
-source search.sh
-source util.sh
+source "${SHWRAP_INIT_DIR}"/util.sh
+source "${SHWRAP_INIT_DIR}"/common.sh
+source "${SHWRAP_INIT_DIR}"/import.sh
+source "${SHWRAP_INIT_DIR}"/run.sh
+source "${SHWRAP_INIT_DIR}"/search.sh

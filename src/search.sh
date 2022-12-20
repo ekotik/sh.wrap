@@ -3,7 +3,7 @@
 # search.sh
 # Module search functions.
 
-source common.sh
+source "${SHWRAP_INIT_DIR}"/common.sh
 
 function __shwrap_path()
 {

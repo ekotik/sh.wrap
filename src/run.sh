@@ -3,7 +3,7 @@
 # run.sh
 # Module runner and cache functions.
 
-source common.sh
+source "${SHWRAP_INIT_DIR}"/common.sh
 
 function shwrap_run()
 {
@@ -46,7 +46,6 @@ function __shwrap__run()
 	# shellcheck disable=SC2016
 	# intentional use of single quotes to avoid unwanted expansions
 	command='${_MODULE_DEBUG:+set -x}
-		source '"${SHWRAP_MODULE}"'
 		'"$(declare -p _shwrap_modules)"'
 		'"$(declare -p _shwrap_modules_deps)"'
 		'"$(declare -p _shwrap_modules_hashes)"'
@@ -56,8 +55,9 @@ function __shwrap__run()
 		'"$(declare -p _shwrap_modules_paths)"'
 		'"$(declare -p _shwrap_scope)"'
 		'"$(declare -p _shwrap_modules_stack)"'
-		source /dev/stdin <<< "${_shwrap_modules['"${module_hash}"']}"
 		eval "${_shwrap_scope[.]}"
+		source '"${SHWRAP_MODULE}"'
+		source /dev/stdin <<< "${_shwrap_modules['"${module_hash}"']}"
 		eval "${_shwrap_scope['"${scope}"']}"
 		'"${command_string}"' "$@"
 		declare __shwrap_ret=$?
@@ -121,7 +121,6 @@ function __shwrap_cache()
 	# shellcheck disable=SC2016
 	# intentional use of single quotes to avoid unwanted expansions
 	command='${_MODULE_DEBUG:+set -x}
-		source '"${SHWRAP_MODULE}"'
 		'"$(declare -p _shwrap_modules)"'
 		'"$(declare -p _shwrap_modules_deps)"'
 		'"$(declare -p _shwrap_modules_hashes)"'
@@ -132,6 +131,7 @@ function __shwrap_cache()
 		'"$(declare -p _shwrap_scope)"'
 		'"$(declare -p _shwrap_modules_stack)"'
 		eval "${_shwrap_scope[.]}"
+		source '"${SHWRAP_MODULE}"'
 		source '"${module_path}"'
 		declare __shwrap_ret=$?
 		_shwrap_modules+=(['"${module_hash}"']=$(declare -f))
