@@ -7,42 +7,43 @@ source "${SHWRAP_INIT_DIR}"/common.sh
 
 function __shwrap_path()
 {
-	local module="$1"
-	realpath -qsm "${module}"
+	local __shwrap_module="$1"
+	realpath -qsm "${__shwrap_module}"
 }
 
 function __shwrap_search()
 {
-	local module="$1"
-	local module_dir module_hash module_name module_path
-	module_path=$(__shwrap_path "${module}")
-	__shwrap_log "__shwrap_search: search '${module}'" >&2
+	local __shwrap_module="$1"
+	local __shwrap_module_hash __shwrap_module_name __shwrap_module_path
+	local module_dir
+	__shwrap_module_path=$(__shwrap_path "${__shwrap_module}")
+	__shwrap_log "__shwrap_search: search '${__shwrap_module}'" >&2
 	# check absolute path
-	if [[ "${module}" == "${module_path}" ]]; then
-		printf '%s' "${module_path}"
+	if [[ "${__shwrap_module}" == "${__shwrap_module_path}" ]]; then
+		printf '%s' "${__shwrap_module_path}"
 		return 0
 	fi
 	# check relative path
 	if [[ "${#_shwrap_modules_stack[@]}" -gt 0 ]]; then
-		module_hash="${_shwrap_modules_stack[-1]}"
-		module_name="${_shwrap_modules_names[${module_hash}]}"
-		module_path="${_shwrap_modules_paths[${module_name}]}"
-		module_dir=$(dirname "${module_path}")
-		if realpath -qse "${module_dir}"/"${module}"; then
+		__shwrap_module_hash="${_shwrap_modules_stack[-1]}"
+		__shwrap_module_name="${_shwrap_modules_names[${__shwrap_module_hash}]}"
+		__shwrap_module_path="${_shwrap_modules_paths[${__shwrap_module_name}]}"
+		module_dir=$(dirname "${__shwrap_module_path}")
+		if realpath -qse "${module_dir}"/"${__shwrap_module}"; then
 			return 0
 		fi
 	fi
 	# check user paths
-	if [[ "${module}" == "${module#./*}" ]] &&
-		   [[ "${module}" == "${module#../*}" ]]; then
+	if [[ "${__shwrap_module}" == "${__shwrap_module#./*}" ]] &&
+		   [[ "${__shwrap_module}" == "${__shwrap_module#../*}" ]]; then
 		for module_dir in "${SHWRAP_MODULE_PATHS[@]}"; do
-			local path="${module_dir}"/"${module}"
+			local path="${module_dir}"/"${__shwrap_module}"
 			if [[ "${module_dir}" == "${module_dir#/*}" ]]; then
 				if [[ "${#_shwrap_modules_stack[@]}" -gt 0 ]]; then
-					module_hash="${_shwrap_modules_stack[-1]}"
-					module_name="${_shwrap_modules_names[${module_hash}]}"
-					module_path="${_shwrap_modules_paths[${module_name}]}"
-					path=$(dirname "${module_path}")/"${module_dir}"/"${module}"
+					__shwrap_module_hash="${_shwrap_modules_stack[-1]}"
+					__shwrap_module_name="${_shwrap_modules_names[${__shwrap_module_hash}]}"
+					__shwrap_module_path="${_shwrap_modules_paths[${__shwrap_module_name}]}"
+					path=$(dirname "${__shwrap_module_path}")/"${module_dir}"/"${__shwrap_module}"
 				fi
 			fi
 			if realpath -qse "${path}"; then
@@ -54,22 +55,22 @@ function __shwrap_search()
 			local i stack=("${_shwrap_modules_stack[@]}")
 			unset 'stack[-1]'
 			for i in $(seq 0 "${#stack[@]}" | tac | tail +2); do
-				module_hash="${stack[${i}]}"
-				module_name="${_shwrap_modules_names[${module_hash}]}"
-				module_path="${_shwrap_modules_paths[${module_name}]}"
-				module_dir=$(dirname "${module_path}")
-				if realpath -qse "${module_dir}"/"${module}"; then
+				__shwrap_module_hash="${stack[${i}]}"
+				__shwrap_module_name="${_shwrap_modules_names[${__shwrap_module_hash}]}"
+				__shwrap_module_path="${_shwrap_modules_paths[${__shwrap_module_name}]}"
+				module_dir=$(dirname "${__shwrap_module_path}")
+				if realpath -qse "${module_dir}"/"${__shwrap_module}"; then
 					return 0
 				fi
 			done
 		fi
 		# default
 		if [[ -v SHWRAP_MODULE_PATH ]]; then
-			if realpath -qse "${SHWRAP_MODULE_PATH}"/"${module}"; then
+			if realpath -qse "${SHWRAP_MODULE_PATH}"/"${__shwrap_module}"; then
 				return 0
 			fi
 		fi
 	fi
 	# fallback
-	__shwrap_path "${module}"
+	__shwrap_path "${__shwrap_module}"
 }

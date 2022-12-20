@@ -16,14 +16,14 @@ function __shwrap_declare()
 
 function __shwrap_name_is_function()
 {
-	local name="$1"
-	declare -F "${name}" > /dev/null
+	local __shwrap_name="$1"
+	declare -F "${__shwrap_name}" > /dev/null
 }
 
 function __shwrap_log()
 {
 	local message="$*"
-	[[ -n "${_MODULE_LOG}" ]] && echo "${message}"
+	[[ -n "${SHWRAP_MODULE_LOG}" ]] && echo "${message}"
 }
 
 function __shwrap_fd_is_free()

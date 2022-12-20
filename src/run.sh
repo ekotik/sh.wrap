@@ -7,39 +7,39 @@ source "${SHWRAP_INIT_DIR}"/common.sh
 
 function shwrap_run()
 {
-	local module="$1"
+	local __shwrap_module="$1"
 	local command_string="$2"
 	shift 2
 
-	local module_path
-	module_path=$(__shwrap_search "${module}")
-	__shwrap_run "${module_path}" "${command_string}" "$@"
+	local __shwrap_module_path
+	__shwrap_module_path=$(__shwrap_search "${__shwrap_module}")
+	__shwrap_run "${__shwrap_module_path}" "${command_string}" "$@"
 }
 
 function __shwrap_run()
 {
-	local module_path="$1"
+	local __shwrap_module_path="$1"
 	local command_string="$2"
 	shift 2
 
-	local module_hash
-	module_hash="${_shwrap_modules_hashes[${module_path}]}"
-	__shwrap__run "${module_path}" "${module_hash}" "${command_string}" "$@"
+	local __shwrap_module_hash
+	__shwrap_module_hash="${_shwrap_modules_hashes[${__shwrap_module_path}]}"
+	__shwrap__run "${__shwrap_module_path}" "${__shwrap_module_hash}" "${command_string}" "$@"
 }
 
 function __shwrap__run()
 {
-	local module_path="$1"
-	local scope="$2"
+	local __shwrap_module_path="$1"
+	local __shwrap_scope="$2"
 	local command_string="$3"
 	shift 3
 
-	local command module_hash
+	local command __shwrap_module_hash
 	local fd_scope fd_scope_cap fd_out fd_out_cap
-	module_hash="${_shwrap_modules_hashes[${module_path}]}"
-	[[ -v _shwrap_modules["${module_hash}"] ]] || {
-		_shwrap_modules+=(["${module_hash}"]="###INITIALIZE MODULE###;")
-		__shwrap_cache "${module_path}" "${scope}"
+	__shwrap_module_hash="${_shwrap_modules_hashes[${__shwrap_module_path}]}"
+	[[ -v _shwrap_modules["${__shwrap_module_hash}"] ]] || {
+		_shwrap_modules+=(["${__shwrap_module_hash}"]="###INITIALIZE MODULE###;")
+		__shwrap_cache "${__shwrap_module_path}" "${__shwrap_scope}"
 	}
 	fd_scope=$(__shwrap_get_fd "${SHWRAP_FD_RANGE[@]}")
 	eval "exec ${fd_scope}< /dev/null"
@@ -50,7 +50,7 @@ function __shwrap__run()
 	__shwrap_log "__shwrap__run: fds ${_shwrap_fds[*]}" >&2
 	# shellcheck disable=SC2016
 	# intentional use of single quotes to avoid unwanted expansions
-	command='${_MODULE_DEBUG:+set -x}
+	command='${SHWRAP_MODULE_DEBUG:+set -x}
 		'"$(declare -p _shwrap_modules)"'
 		'"$(declare -p _shwrap_modules_deps)"'
 		'"$(declare -p _shwrap_modules_hashes)"'
@@ -63,11 +63,11 @@ function __shwrap__run()
 		'"$(declare -p _shwrap_modules_stack)"'
 		eval "${_shwrap_scope[.]}"
 		source '"${SHWRAP_MODULE}"'
-		source /dev/stdin <<< "${_shwrap_modules['"${module_hash}"']}"
-		eval "${_shwrap_scope['"${scope}"']}"
+		source /dev/stdin <<< "${_shwrap_modules['"${__shwrap_module_hash}"']}"
+		eval "${_shwrap_scope['"${__shwrap_scope}"']}"
 		'"${command_string}"' "$@"
 		declare __shwrap_ret=$?
-		_shwrap_scope+=(['"${scope}"']=$(__shwrap_scope))
+		_shwrap_scope+=(['"${__shwrap_scope}"']=$(__shwrap_scope))
 		{
 			declare -p _shwrap_modules;
 			declare -p _shwrap_modules_deps;
@@ -89,12 +89,12 @@ function __shwrap__run()
 				{
 					eval "exec ${fd_scope}>&1 1>&${fd_out}"
 					cat <<< "${command}" \
-						> "${SHWRAP_TMP_PATH}"/"${module_hash}"_run.sh
-					env -i ${_MODULE_VERBOSE:+-v} \
-						_MODULE_DEBUG="${_MODULE_DEBUG}" \
-						_MODULE_LOG="${_MODULE_LOG}" \
+						> "${SHWRAP_TMP_PATH}"/"${__shwrap_module_hash}"_run.sh
+					env -i ${SHWRAP_MODULE_VERBOSE:+-v} \
+						SHWRAP_MODULE_DEBUG="${SHWRAP_MODULE_DEBUG}" \
+						SHWRAP_MODULE_LOG="${SHWRAP_MODULE_LOG}" \
 						"${SHELL}" --noprofile --norc \
-						"${SHWRAP_TMP_PATH}"/"${module_hash}"_run.sh "$@"
+						"${SHWRAP_TMP_PATH}"/"${__shwrap_module_hash}"_run.sh "$@"
 					eval "exec ${fd_scope}>&-"
 				}
 			)
@@ -117,14 +117,13 @@ function __shwrap__run()
 
 function __shwrap_cache()
 {
-	local module_path="$1"
+	local __shwrap_module_path="$1"
 	local scope="$2"
 
-	local command module_hash
+	local command __shwrap_module_hash
 	local fd_scope fd_scope_cap fd_out fd_out_cap
-	module_hash="${_shwrap_modules_hashes[${module_path}]}"
-	local command module_hash
-	__shwrap_log "__shwrap_cache: cache '${module_path}' '${scope}'" >&2
+	__shwrap_module_hash="${_shwrap_modules_hashes[${__shwrap_module_path}]}"
+	__shwrap_log "__shwrap_cache: cache '${__shwrap_module_path}' '${scope}'" >&2
 	fd_scope=$(__shwrap_get_fd "${SHWRAP_FD_RANGE[@]}")
 	eval "exec ${fd_scope}< /dev/null"
 	_shwrap_fds["${fd_scope}"]="${fd_scope}"
@@ -134,7 +133,7 @@ function __shwrap_cache()
 	__shwrap_log "__shwrap__run: fds ${_shwrap_fds[*]}" >&2
 	# shellcheck disable=SC2016
 	# intentional use of single quotes to avoid unwanted expansions
-	command='${_MODULE_DEBUG:+set -x}
+	command='${SHWRAP_MODULE_DEBUG:+set -x}
 		'"$(declare -p _shwrap_modules)"'
 		'"$(declare -p _shwrap_modules_deps)"'
 		'"$(declare -p _shwrap_modules_hashes)"'
@@ -147,9 +146,9 @@ function __shwrap_cache()
 		'"$(declare -p _shwrap_modules_stack)"'
 		eval "${_shwrap_scope[.]}"
 		source '"${SHWRAP_MODULE}"'
-		source '"${module_path}"'
+		source '"${__shwrap_module_path}"'
 		declare __shwrap_ret=$?
-		_shwrap_modules+=(['"${module_hash}"']=$(declare -f))
+		_shwrap_modules+=(['"${__shwrap_module_hash}"']=$(declare -f))
 		_shwrap_scope+=(['"${scope}"']=$(__shwrap_scope))
 		{
 			declare -p _shwrap_modules;
@@ -172,12 +171,12 @@ function __shwrap_cache()
 				{
 					eval "exec ${fd_scope}>&1 1>&${fd_out}"
 					cat <<< "${command}" \
-						> "${SHWRAP_TMP_PATH}"/"${module_hash}"_cache.sh
-					env -i ${_MODULE_VERBOSE:+-v} \
-						_MODULE_DEBUG="${_MODULE_DEBUG}" \
-						_MODULE_LOG="${_MODULE_LOG}" \
+						> "${SHWRAP_TMP_PATH}"/"${__shwrap_module_hash}"_cache.sh
+					env -i ${SHWRAP_MODULE_VERBOSE:+-v} \
+						SHWRAP_MODULE_DEBUG="${SHWRAP_MODULE_DEBUG}" \
+						SHWRAP_MODULE_LOG="${SHWRAP_MODULE_LOG}" \
 						"${SHELL}" --noprofile --norc \
-						"${SHWRAP_TMP_PATH}"/"${module_hash}"_cache.sh
+						"${SHWRAP_TMP_PATH}"/"${__shwrap_module_hash}"_cache.sh
 					eval "exec ${fd_out}>&-"
 				}
 			)

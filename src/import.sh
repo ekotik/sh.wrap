@@ -5,16 +5,16 @@
 
 function __shwrap_partial_name()
 {
-	local parts=("$@")
-	cat <(IFS=.; echo -n ."${parts[*]}")
+	local __shwrap_parts=("$@")
+	cat <(IFS=.; echo -n ."${__shwrap_parts[*]}")
 }
 
 function __shwrap_circular()
 {
-	local module_hash="$1"
+	local __shwrap_module_hash="$1"
 	local i=0
 	for i in "${!_shwrap_modules_stack[@]}"; do
-		if [[ "${module_hash}" == "${_shwrap_modules_stack[${i}]}" ]]; then
+		if [[ "${__shwrap_module_hash}" == "${_shwrap_modules_stack[${i}]}" ]]; then
 			echo "${i}"
 			return
 		fi
@@ -24,8 +24,8 @@ function __shwrap_circular()
 
 function __shwrap_hash()
 {
-	local module="$1"
-	printf '%s' "${module}" | md5sum | cut -d $' ' -f1
+	local __shwrap_module="$1"
+	printf '%s' "${__shwrap_module}" | md5sum | cut -d $' ' -f1
 }
 
 function shwrap_import()
