@@ -41,8 +41,13 @@ function __shwrap__run()
 		_shwrap_modules+=(["${module_hash}"]="###INITIALIZE MODULE###;")
 		__shwrap_cache "${module_path}" "${scope}"
 	}
-	exec {fd_scope}</dev/null
-	exec {fd_out}</dev/null
+	fd_scope=$(__shwrap_get_fd "${SHWRAP_FD_RANGE[@]}")
+	eval "exec ${fd_scope}< /dev/null"
+	_shwrap_fds["${fd_scope}"]="${fd_scope}"
+	fd_out=$(__shwrap_get_fd "${SHWRAP_FD_RANGE[@]}")
+	eval "exec ${fd_out}< /dev/null"
+	_shwrap_fds["${fd_out}"]="${fd_out}"
+	__shwrap_log "__shwrap__run: fds ${_shwrap_fds[*]}" >&2
 	# shellcheck disable=SC2016
 	# intentional use of single quotes to avoid unwanted expansions
 	command='${_MODULE_DEBUG:+set -x}
@@ -54,6 +59,7 @@ function __shwrap__run()
 		'"$(declare -p _shwrap_modules_parts)"'
 		'"$(declare -p _shwrap_modules_paths)"'
 		'"$(declare -p _shwrap_scope)"'
+		'"$(declare -p _shwrap_fds)"'
 		'"$(declare -p _shwrap_modules_stack)"'
 		eval "${_shwrap_scope[.]}"
 		source '"${SHWRAP_MODULE}"'
@@ -71,6 +77,7 @@ function __shwrap__run()
 			declare -p _shwrap_modules_parts;
 			declare -p _shwrap_modules_paths;
 			declare -p _shwrap_scope;
+			declare -p _shwrap_fds;
 			declare -p _shwrap_modules_stack;
 			declare -p __shwrap_ret;
 		} | __shwrap_declare >&'"${fd_scope}"'
@@ -99,8 +106,10 @@ function __shwrap__run()
 		exec {fd_scope_cap}<&-
 		eval "exec ${fd_out}>&-"
 	}
-	exec {fd_scope}<&-
-	exec {fd_out}<&-
+	eval "exec {fd_scope}<&-"
+	eval "exec {fd_out}<&-"
+	unset '_shwrap_fds["${fd_scope}"]'
+	unset '_shwrap_fds["${fd_out}"]'
 
 	# shellcheck disable=SC2154
 	return "${__shwrap_ret}"
@@ -116,8 +125,13 @@ function __shwrap_cache()
 	module_hash="${_shwrap_modules_hashes[${module_path}]}"
 	local command module_hash
 	__shwrap_log "__shwrap_cache: cache '${module_path}' '${scope}'" >&2
-	exec {fd_scope}</dev/null
-	exec {fd_out}</dev/null
+	fd_scope=$(__shwrap_get_fd "${SHWRAP_FD_RANGE[@]}")
+	eval "exec ${fd_scope}< /dev/null"
+	_shwrap_fds["${fd_scope}"]="${fd_scope}"
+	fd_out=$(__shwrap_get_fd "${SHWRAP_FD_RANGE[@]}")
+	eval "exec ${fd_out}< /dev/null"
+	_shwrap_fds["${fd_out}"]="${fd_out}"
+	__shwrap_log "__shwrap__run: fds ${_shwrap_fds[*]}" >&2
 	# shellcheck disable=SC2016
 	# intentional use of single quotes to avoid unwanted expansions
 	command='${_MODULE_DEBUG:+set -x}
@@ -129,6 +143,7 @@ function __shwrap_cache()
 		'"$(declare -p _shwrap_modules_parts)"'
 		'"$(declare -p _shwrap_modules_paths)"'
 		'"$(declare -p _shwrap_scope)"'
+		'"$(declare -p _shwrap_fds)"'
 		'"$(declare -p _shwrap_modules_stack)"'
 		eval "${_shwrap_scope[.]}"
 		source '"${SHWRAP_MODULE}"'
@@ -145,6 +160,7 @@ function __shwrap_cache()
 			declare -p _shwrap_modules_parts;
 			declare -p _shwrap_modules_paths;
 			declare -p _shwrap_scope;
+			declare -p _shwrap_fds;
 			declare -p _shwrap_modules_stack;
 			declare -p __shwrap_ret;
 		} | __shwrap_declare >&'"${fd_scope}"'
@@ -173,8 +189,10 @@ function __shwrap_cache()
 		exec {fd_scope_cap}<&-
 		eval "exec ${fd_out}>&-"
 	}
-	exec {fd_scope}<&-
-	exec {fd_out}<&-
+	eval "exec {fd_scope}<&-"
+	eval "exec {fd_out}<&-"
+	unset '_shwrap_fds["${fd_scope}"]'
+	unset '_shwrap_fds["${fd_out}"]'
 
 	# shellcheck disable=SC2154
 	return "${__shwrap_ret}"
