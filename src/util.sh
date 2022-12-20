@@ -27,6 +27,17 @@ function __shwrap_log()
 	[[ -n "${SHWRAP_MODULE_LOG}" ]] && echo "${message}"
 }
 
+function __shwrap_random_bytes()
+{
+	local count="$1"
+	dd if=/dev/urandom bs=1 count="${count}" 2>/dev/null
+}
+
+function __shwrap_md5sum()
+{
+	md5sum | cut -d $' ' -f1
+}
+
 function __shwrap_fd_is_free()
 {
 	local fd="$1"

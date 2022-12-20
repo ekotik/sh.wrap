@@ -26,7 +26,7 @@ function __shwrap_circular()
 function __shwrap_hash()
 {
 	local __shwrap_module="$1"
-	printf '%s' "${__shwrap_module}" | md5sum | cut -d $' ' -f1
+	printf '%s' "${__shwrap_module}" | __shwrap_md5sum
 }
 
 function shwrap_import()

@@ -90,12 +90,12 @@ function __shwrap__run()
 				{
 					eval "exec ${fd_scope}>&1 1>&${fd_out}"
 					cat <<< "${command}" \
-						> "${SHWRAP_TMP_PATH}"/"${__shwrap_module_hash}"_run.sh
+						> "${SHWRAP_TMP_PATH}"/"${SHWRAP_ID}"_"${__shwrap_module_hash}"_run.sh
 					env -i ${SHWRAP_MODULE_VERBOSE:+-v} \
 						SHWRAP_MODULE_DEBUG="${SHWRAP_MODULE_DEBUG}" \
 						SHWRAP_MODULE_LOG="${SHWRAP_MODULE_LOG}" \
 						"${SHELL}" --noprofile --norc \
-						"${SHWRAP_TMP_PATH}"/"${__shwrap_module_hash}"_run.sh "$@"
+						"${SHWRAP_TMP_PATH}"/"${SHWRAP_ID}"_"${__shwrap_module_hash}"_run.sh "$@"
 					eval "exec ${fd_scope}>&-"
 				}
 			)
@@ -172,12 +172,12 @@ function __shwrap_cache()
 				{
 					eval "exec ${fd_scope}>&1 1>&${fd_out}"
 					cat <<< "${command}" \
-						> "${SHWRAP_TMP_PATH}"/"${__shwrap_module_hash}"_cache.sh
+						> "${SHWRAP_TMP_PATH}"/"${SHWRAP_ID}"_"${__shwrap_module_hash}"_cache.sh
 					env -i ${SHWRAP_MODULE_VERBOSE:+-v} \
 						SHWRAP_MODULE_DEBUG="${SHWRAP_MODULE_DEBUG}" \
 						SHWRAP_MODULE_LOG="${SHWRAP_MODULE_LOG}" \
 						"${SHELL}" --noprofile --norc \
-						"${SHWRAP_TMP_PATH}"/"${__shwrap_module_hash}"_cache.sh
+						"${SHWRAP_TMP_PATH}"/"${SHWRAP_ID}"_"${__shwrap_module_hash}"_cache.sh
 					eval "exec ${fd_out}>&-"
 				}
 			)
