@@ -49,6 +49,7 @@ function __shwrap__run()
 	eval "exec ${fd_out}< /dev/null"
 	_shwrap_fds["${fd_out}"]="${fd_out}"
 	__shwrap_log "__shwrap__run: fds ${_shwrap_fds[*]}" >&2
+
 	# shellcheck disable=SC2016
 	# intentional use of single quotes to avoid unwanted expansions
 	command='${SHWRAP_MODULE_DEBUG:+set -x}
@@ -102,7 +103,6 @@ function __shwrap__run()
 			cat <&"${fd_out_cap}"
 			exec {fd_out_cap}<&-
 		)
-		# shellcheck disable=SC2046
 		eval "$(cat <&"${fd_scope_cap}")"
 		exec {fd_scope_cap}<&-
 		eval "exec ${fd_out}>&-"
@@ -112,7 +112,6 @@ function __shwrap__run()
 	unset '_shwrap_fds["${fd_scope}"]'
 	unset '_shwrap_fds["${fd_out}"]'
 
-	# shellcheck disable=SC2154
 	return "${__shwrap_ret}"
 }
 
@@ -132,6 +131,7 @@ function __shwrap_cache()
 	eval "exec ${fd_out}< /dev/null"
 	_shwrap_fds["${fd_out}"]="${fd_out}"
 	__shwrap_log "__shwrap__run: fds ${_shwrap_fds[*]}" >&2
+
 	# shellcheck disable=SC2016
 	# intentional use of single quotes to avoid unwanted expansions
 	command='${SHWRAP_MODULE_DEBUG:+set -x}
@@ -184,7 +184,6 @@ function __shwrap_cache()
 			cat <&"${fd_out_cap}"
 			exec {fd_out_cap}<&-
 		)
-		# shellcheck disable=SC2046
 		eval "$(cat <&"${fd_scope_cap}")"
 		exec {fd_scope_cap}<&-
 		eval "exec ${fd_out}>&-"
@@ -194,6 +193,5 @@ function __shwrap_cache()
 	unset '_shwrap_fds["${fd_scope}"]'
 	unset '_shwrap_fds["${fd_out}"]'
 
-	# shellcheck disable=SC2154
 	return "${__shwrap_ret}"
 }

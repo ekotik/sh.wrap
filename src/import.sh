@@ -67,9 +67,9 @@ function __shwrap__import()
 	local __shwrap_name __shwrap_names=("$@")
 	local __shwrap_i
 	local __shwrap_module_hash __shwrap_module_path __shwrap_partial __shwrap_partial_hash
-	# import and cache partially imported modules
 	__shwrap_log "__shwrap__import: import '${__shwrap_module}' '${__shwrap_scope}' '${__shwrap_caller}'" >&2
 	if [[ ! -v _shwrap_modules_partials["${__shwrap_module}"] ]]; then
+		# import and cache partially imported modules
 		__shwrap_module_path=$(__shwrap_search "${__shwrap_module}")
 		__shwrap_module="${__shwrap_module_path}"
 		__shwrap_module_hash=$(__shwrap_hash "${__shwrap_module_path}")
@@ -85,8 +85,8 @@ function __shwrap__import()
 			__shwrap_partial="${__shwrap_partial}"."${__shwrap_module_hash}"
 			__shwrap_partial_hash=$(__shwrap_hash "${__shwrap_partial}")
 			__shwrap_log "__shwrap__import: hash '${__shwrap_partial}' '${__shwrap_partial_hash}'" >&2
-			# create partial definitions and scope
 			if [[ ! -v _shwrap_modules["${__shwrap_partial_hash}"] ]]; then
+				# create partial definitions and scope
 				_shwrap_modules+=(["${__shwrap_partial_hash}"]=$(declare -f))
 				_shwrap_modules_hashes+=(["${__shwrap_partial}"]="${__shwrap_partial_hash}")
 				_shwrap_modules_names+=(["${__shwrap_partial_hash}"]="${__shwrap_partial}")
@@ -94,9 +94,9 @@ function __shwrap__import()
 				_shwrap_scope+=(["${_shwrap_modules_stack[-1]}"]=$(__shwrap_scope))
 			fi
 		fi
-		# handle circular dependency
 		__shwrap_i=$(__shwrap_circular "${__shwrap_module_hash}")
 		if [[ "${__shwrap_i}" != -1 ]]; then
+			# handle circular dependency
 			if [[ "${_shwrap_modules[${__shwrap_module_hash}]}" == "###INITIALIZE MODULE###;" ]]; then
 				local __shwrap_parts=("${_shwrap_modules_stack[@]:0:$((++__shwrap_i))}")
 				local __shwrap_part __shwrap_dep="${_shwrap_modules_stack[${__shwrap_i}]}"
@@ -122,11 +122,12 @@ function __shwrap__import()
 			_shwrap_modules_stack+=("${__shwrap_module_hash}")
 		fi
 	fi
-	# import module exports
 	if [[ $# == 0 ]]; then
+		# import module exports
 		# cache module to avoid infinite recursion
 		__shwrap__run "${__shwrap_module}" "${__shwrap_scope}" "###IMPORT###"
 		# shellcheck disable=SC2207
+		# intentional use of word splitting
 		__shwrap_names=($(__shwrap_run "${__shwrap_module}" 'declare -Fx' | cut -d $' ' -f3))
 		if [[ "${__shwrap_i}" == -1 ]]; then # prepare imports stack
 			unset '_shwrap_modules_stack[-1]'
@@ -140,9 +141,10 @@ function __shwrap__import()
 		fi
 	else
 		for __shwrap_name in "${__shwrap_names[@]}"; do
-			# wrap module name
 			if __shwrap_run "${__shwrap_module}" '__shwrap_name_is_function '"${__shwrap_name}"; then
+				# wrap module name
 				# shellcheck disable=SC1090
+				# source from string
 				source <(cat <<EOF
 function ${__shwrap_name}() {
 	# update caller scope before run
