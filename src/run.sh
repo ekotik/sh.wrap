@@ -4,6 +4,7 @@
 # run.sh
 # Module runner and cache functions.
 
+# shellcheck source=src/common.sh
 source "${SHWRAP_INIT_DIR}"/common.sh
 
 function shwrap_run()

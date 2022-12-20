@@ -4,6 +4,7 @@
 # search.sh
 # Module search functions.
 
+# shellcheck source=src/common.sh
 source "${SHWRAP_INIT_DIR}"/common.sh
 
 function __shwrap_path()
