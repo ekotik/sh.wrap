@@ -35,6 +35,7 @@ function __shwrap__run()
 	local command_string="$3"
 	shift 3
 
+	local __shwrap_ret=1
 	local command __shwrap_module_hash
 	local fd_scope fd_scope_cap fd_out fd_out_cap
 	__shwrap_module_hash="${_shwrap_modules_hashes[${__shwrap_module_path}]}"
@@ -81,8 +82,8 @@ function __shwrap__run()
 			declare -p _shwrap_scope;
 			declare -p _shwrap_fds;
 			declare -p _shwrap_modules_stack;
-			declare -p __shwrap_ret;
 		} | __shwrap_declare >&'"${fd_scope}"'
+		declare -p __shwrap_ret >&'"${fd_scope}"'
 		exit ${__shwrap_ret}'
 	{
 		eval "exec ${fd_out}>&1"
@@ -120,6 +121,7 @@ function __shwrap_cache()
 	local __shwrap_module_path="$1"
 	local scope="$2"
 
+	local __shwrap_ret=1
 	local command __shwrap_module_hash
 	local fd_scope fd_scope_cap fd_out fd_out_cap
 	__shwrap_module_hash="${_shwrap_modules_hashes[${__shwrap_module_path}]}"
@@ -162,9 +164,9 @@ function __shwrap_cache()
 			declare -p _shwrap_scope;
 			declare -p _shwrap_fds;
 			declare -p _shwrap_modules_stack;
-			declare -p __shwrap_ret;
 		} | __shwrap_declare >&'"${fd_scope}"'
-		exit ${ret}'
+		declare -p __shwrap_ret >&'"${fd_scope}"'
+		exit ${__shwrap_ret}'
 	{
 		eval "exec ${fd_out}>&1"
 		exec {fd_scope_cap}< <(
