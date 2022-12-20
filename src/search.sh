@@ -1,5 +1,6 @@
 #!/bin/bash
 # sh.wrap - module system for bash
+
 # search.sh
 # Module search functions.
 
@@ -33,9 +34,9 @@ function __shwrap_search()
 			return 0
 		fi
 	fi
-	# check user paths
 	if [[ "${__shwrap_module}" == "${__shwrap_module#./*}" ]] &&
 		   [[ "${__shwrap_module}" == "${__shwrap_module#../*}" ]]; then
+		# check user paths
 		for module_dir in "${SHWRAP_MODULE_PATHS[@]}"; do
 			local path="${module_dir}"/"${__shwrap_module}"
 			if [[ "${module_dir}" == "${module_dir#/*}" ]]; then

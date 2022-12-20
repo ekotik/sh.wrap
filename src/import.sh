@@ -1,5 +1,6 @@
 #!/bin/bash
 # sh.wrap - module system for bash
+
 # import.sh
 # Import related functions.
 
@@ -102,6 +103,7 @@ function __shwrap__import()
 				__shwrap_part="$(__shwrap_partial_name "${__shwrap_parts[@]}")"."${__shwrap_dep}"
 				if [[ $# == 0 ]]; then
 					# shellcheck disable=SC2207
+					# intentional use of word splitting
 					__shwrap_names=($(__shwrap_run "${__shwrap_part}" 'declare -Fx' | cut -d $' ' -f3))
 				fi
 				for __shwrap_name in "${__shwrap_names[@]}"; do
@@ -156,8 +158,8 @@ EOF
 			fi
 		done
 	fi
-	# fix partially imported wrappers and back propagate scope
 	if [[ "${__shwrap_i}" == -1 ]]; then
+		# fix partially imported wrappers
 		if [[ ! -v _shwrap_modules_partials["${__shwrap_module}"] ]]; then
 			if [[ $# != 0 ]]; then
 				local __shwrap_module_revdeps=()
@@ -183,7 +185,7 @@ EOF
 							_shwrap_modules_names+=(["${__shwrap_partial_hash}"]="${__shwrap_partial}")
 							_shwrap_modules_partials+=(["${__shwrap_partial}"]="")
 							# shellcheck disable=SC2016
-							# intentional use of single quotes to avoid expansion
+							# intentional use of single quotes to avoid unwanted expansions
 							local __shwrap_command='eval "$(__shwrap_run '"${_shwrap_modules_parts[${__shwrap_revdeps[@]}]}"' "declare -f '"${__shwrap_name}"'")"; declare -f'
 							_shwrap_modules["${__shwrap_partial_hash}"]="$(__shwrap_run "${__shwrap_partial}" "${__shwrap_command}")"
 							__shwrap_command="__shwrap__import '${__shwrap_partial}' '${__shwrap_module_hash}' '${__shwrap_revdeps[0]}' '${__shwrap_name}'; declare -f"
