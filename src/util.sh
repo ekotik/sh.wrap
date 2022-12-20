@@ -5,7 +5,7 @@
 
 function __shwrap_scope()
 {
-	declare -p | grep -vE '_+shwrap_.*|BASHOPTS|BASH_ARGC|BASH_ARGV|BASH_LINENO|BASH_SOURCE|BASH_VERSINFO|EUID|FUNCNAME|GROUPS|PPID|SHELLOPTS|UID' | __shwrap_declare
+	declare -p | grep -vE '_+shwrap_.*|_+SHWRAP_.*|BASHOPTS|BASH_ARGC|BASH_ARGV|BASH_LINENO|BASH_SOURCE|BASH_VERSINFO|EUID|FUNCNAME|GROUPS|PPID|SHELLOPTS|UID' | __shwrap_declare
 }
 
 function __shwrap_declare()
