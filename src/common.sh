@@ -8,7 +8,7 @@
 declare _SHWRAP_ID
 _SHWRAP_ID=$(__shwrap_random_bytes 256 | __shwrap_md5sum)
 
-[[ -n "${SHWRAP_ID}" ]] || declare -x SHWRAP_ID="${_SHWRAP_ID}"
+[[ -n "${SHWRAP_ID}" ]] || declare -g SHWRAP_ID="${_SHWRAP_ID}"
 
 declare -x _SHWRAP_MODULE_PATH=~/.sh.wrap
 declare -x _SHWRAP_MODULE="${SHWRAP_INIT_DIR}"/module.sh
