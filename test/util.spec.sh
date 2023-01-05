@@ -1,6 +1,15 @@
+#!/bin/bash
+# sh.wrap - module system for bash
+
+# util.spec.sh
+# Module tests for util.sh
+
+# shellcheck disable=SC1091,SC2034
+
 setup()
 {
-	local SHWRAP_INIT_DIR=$(dirname "${BASH_SOURCE}")/../src
+	local SHWRAP_INIT_DIR
+	SHWRAP_INIT_DIR=$(dirname "${BASH_SOURCE[0]}")/../src
 	source "${SHWRAP_INIT_DIR}"/util.sh
 }
 
