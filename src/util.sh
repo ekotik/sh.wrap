@@ -24,7 +24,7 @@ function __shwrap_name_is_function()
 function __shwrap_log()
 {
 	local message="$*"
-	[[ -n "${SHWRAP_MODULE_LOG}" ]] && echo "${message}"
+	{ [[ -n "${SHWRAP_MODULE_LOG}" ]] && echo "${message}"; } || true
 }
 
 function __shwrap_random_bytes()
