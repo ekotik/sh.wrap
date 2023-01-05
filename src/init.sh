@@ -10,4 +10,4 @@ declare -x SHWRAP_INIT_DIR
 # shellcheck source=src/common.sh
 source "${SHWRAP_INIT_DIR}"/module.sh
 
-shwrap_import sh.wrap/module.sh
+shwrap_import "${SHWRAP_INIT_DIR}"/module.sh
