@@ -6,7 +6,7 @@
 
 # shellcheck disable=SC1091
 
-setup()
+__init_user()
 {
 	local SHWRAP_INIT_DIR
 	SHWRAP_INIT_DIR=$(realpath "./src")
@@ -19,8 +19,9 @@ This test checks that SHWRAP_ID is not equal for different shells.
 "
 test_shwrap_id()
 {
-	declare -fx setup
+	__init_user
+	declare -fx __init_user
 	local shwrap_id_sub
-	shwrap_id_sub=$(bash -c 'setup; echo ${SHWRAP_ID}')
+	shwrap_id_sub=$(bash -c '__init_user; echo ${SHWRAP_ID}')
 	[[ -n "${shwrap_id_sub}" ]] && [[ "${SHWRAP_ID}" != "${shwrap_id_sub}" ]]
 }
