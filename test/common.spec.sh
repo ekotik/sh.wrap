@@ -73,7 +73,6 @@ test_common_globals()
 		declare -p _shwrap_modules_paths > /dev/null
 		declare -p _shwrap_scope > /dev/null
 		declare -p _shwrap_fds > /dev/null
-		declare -p _shwrap_fds
 		declare -p _shwrap_modules_stack > /dev/null
 	}
 }
