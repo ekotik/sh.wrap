@@ -5,7 +5,7 @@
 # Initialization script intended to be in user shell profile.
 
 [[ -n "${SHWRAP_INIT_DIR}" ]] || SHWRAP_INIT_DIR="${BASH_SOURCE[0]}"
-declare -x SHWRAP_INIT_DIR
+declare -xg SHWRAP_INIT_DIR
 
 # shellcheck source=src/module.sh
 source "${SHWRAP_INIT_DIR}"/module.sh
