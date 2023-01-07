@@ -25,6 +25,10 @@ test_set()
 	shwrap_run "${BASH_SOURCE[0]}" 'test -v GLOBAL_VAR'
 }
 
+: "test_unset
+
+This test checks that module can unset globally exported variable.
+"
 test_unset()
 {
 	__init
