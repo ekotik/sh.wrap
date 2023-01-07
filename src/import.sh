@@ -68,6 +68,7 @@ function __shwrap__import()
 	local __shwrap_i
 	local __shwrap_module_hash __shwrap_module_path __shwrap_partial __shwrap_partial_hash
 	__shwrap_log "__shwrap__import: import '${__shwrap_module}' '${__shwrap_scope}' '${__shwrap_caller}'" >&2
+	_shwrap_scope+=([.]=$(declare -px))
 	if [[ ! -v _shwrap_modules_partials["${__shwrap_module}"] ]]; then
 		# import and cache partially imported modules
 		__shwrap_module_path=$(__shwrap_search "${__shwrap_module}")
