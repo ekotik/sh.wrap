@@ -65,7 +65,6 @@ function __shwrap__run()
 		'"$(declare -p _shwrap_scope)"'
 		'"$(declare -p _shwrap_fds)"'
 		'"$(declare -p _shwrap_modules_stack)"'
-		eval "${_shwrap_scope[.]}"
 		source '"${SHWRAP_MODULE}"'
 		source /dev/stdin <<< "${_shwrap_modules['"${__shwrap_module_hash}"']}"
 		eval "${_shwrap_scope['"${__shwrap_scope}"']}"
@@ -97,6 +96,7 @@ function __shwrap__run()
 					env -i ${SHWRAP_MODULE_VERBOSE:+-v} \
 						SHWRAP_MODULE_DEBUG="${SHWRAP_MODULE_DEBUG}" \
 						SHWRAP_MODULE_LOG="${SHWRAP_MODULE_LOG}" \
+						SHWRAP_INIT_DIR="${SHWRAP_INIT_DIR}" \
 						"${SHELL}" --noprofile --norc \
 						"${SHWRAP_TMP_PATH}"/"${SHWRAP_ID}"_"${__shwrap_module_hash}"_run.sh "$@"
 					eval "exec ${fd_scope}>&-"
@@ -178,6 +178,7 @@ function __shwrap_cache()
 					env -i ${SHWRAP_MODULE_VERBOSE:+-v} \
 						SHWRAP_MODULE_DEBUG="${SHWRAP_MODULE_DEBUG}" \
 						SHWRAP_MODULE_LOG="${SHWRAP_MODULE_LOG}" \
+						SHWRAP_INIT_DIR="${SHWRAP_INIT_DIR}" \
 						"${SHELL}" --noprofile --norc \
 						"${SHWRAP_TMP_PATH}"/"${SHWRAP_ID}"_"${__shwrap_module_hash}"_cache.sh
 					eval "exec ${fd_out}>&-"

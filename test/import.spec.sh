@@ -24,3 +24,12 @@ test_set()
 	shwrap_import "${BASH_SOURCE[0]}"
 	shwrap_run "${BASH_SOURCE[0]}" 'test -v GLOBAL_VAR'
 }
+
+test_unset()
+{
+	__init
+	declare -x GLOBAL_VAR=GLOBAL_VAL
+	shwrap_import "${BASH_SOURCE[0]}"
+	shwrap_run "${BASH_SOURCE[0]}" 'unset GLOBAL_VAR'
+	shwrap_run "${BASH_SOURCE[0]}" '! test -v GLOBAL_VAR'
+}
