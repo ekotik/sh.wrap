@@ -1,7 +1,7 @@
 #!/bin/bash
 # sh.wrap - module system for bash
 
-# init.spec.1.sh
+# init.spec.sh
 # Module tests for init.sh
 
 # shellcheck disable=SC1091
