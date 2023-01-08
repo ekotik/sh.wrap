@@ -471,7 +471,7 @@ DOCKERFILE="$DOCKER_PATH"/"test-shellcheck.Dockerfile"
 #+begin_src dockerfile :tangle ../../../docker/test-shellcheck.Dockerfile :eval no
 FROM ubuntu:latest as build
 
-RUN apt update
+RUN apt update && apt install --yes ca-certificates
 RUN apt install --yes bash
 RUN apt install --yes shellcheck
 
@@ -737,7 +737,7 @@ DOCKERFILE="$DOCKER_PATH"/"go-build.Dockerfile"
 #+begin_src dockerfile :tangle ../../../docker/go-build.Dockerfile :eval no
 FROM ubuntu:latest as build
 
-RUN apt update
+RUN apt update && apt install --yes ca-certificates
 RUN apt install --yes bash
 RUN apt install --yes git
 RUN apt install --yes golang
@@ -1106,12 +1106,11 @@ DOCKERFILE="$DOCKER_PATH"/"hugo-site.Dockerfile"
 #+begin_src dockerfile :tangle ../../../docker/hugo-site.Dockerfile :eval no
 FROM ubuntu:latest as build
 
-RUN apt update
+RUN apt update && apt install --yes ca-certificates
 RUN apt install --yes bash
 RUN apt install --yes curl
 RUN apt install --yes git
 RUN apt install --yes golang
-RUN apt install --yes pandoc
 RUN mkdir /go
 COPY "${HUGO_BIN_SOURCE}" "${HUGO_BIN_DEST}"
 
@@ -1505,8 +1504,7 @@ DOCKERFILE="$DOCKER_PATH"/"git-tasks.Dockerfile"
 #+begin_src dockerfile :tangle ../../../docker/git-tasks.Dockerfile :eval no
 FROM ubuntu:latest as build
 
-RUN apt update
-RUN apt install --yes ca-certificates
+RUN apt update && apt install --yes ca-certificates
 RUN apt install --yes bash
 RUN apt install --yes curl
 RUN apt install --yes gettext
