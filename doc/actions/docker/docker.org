@@ -194,10 +194,10 @@ dockerfile_out=$(realpath "$2")
 #+end_src
 
 #+begin_src bash
-LAST_ERROR="Input and output dockerfiles are the same file"
+LAST_ERROR="input and output dockerfiles are the same file"
 [[ "$dockerfile" != "$dockerfile_out" ]] || $live_or_die
 
-LAST_ERROR="No dockerfile '${dockerfile}' found"
+LAST_ERROR="no dockerfile '${dockerfile}' found"
 [[ -f "$dockerfile" ]] || $live_or_die
 
 env envsubst < "$dockerfile" > "$dockerfile_out"
@@ -340,7 +340,7 @@ function test_workflow()
 	# shellcheck disable=SC1090
 	source "$datafile"
 	local API_WORKFLOW_DISPATCH="https://api.github.com/repos/${github_repo}/actions/workflows/${WORKFLOW_ID}/dispatches"
-	LAST_ERROR="${data_template} - test dispatch failed (${datafile})"
+	LAST_ERROR="${data_template} (${datafile}): test dispatch failed"
 	env envsubst < "$data_template" | \
 		jq '{ ref: .ref, inputs: { run_id: .inputs.run_id, payload: (.inputs.payload | tostring) }}' | \
 		curl -X POST "${API_WORKFLOW_DISPATCH}" --fail \
@@ -389,32 +389,40 @@ exit 0
 <<help>>
 
 <<live-or-die-trap>>
+
+<<gh-mode>>
 #+end_src
 
 Parameters.
 #+begin_src bash :tangle no
-org_file=$(realpath "./docker.org")
+in_dir=$(realpath "../docker")
+out_dir=$(realpath -m "../docker")
 clean=1
 #+end_src
 
 Help and parameters check.
 #+begin_src bash :eval no
 help-org-to-md() {
-	printf "Usage: %s: <ORGFILE> [CLEAN]\n" "$0"
+	printf "Usage: %s: <INDIR> <OUTDIR> [CLEAN]\n" "$0"
 	help "$@"
 }
 
-# check github repository (OWNER/REPO format)
+# check source directory
 if [[ $# -eq 0 ]]; then
-	echo >&2 "No org file specified"
+	echo >&2 "No source directory specified"
 	help-org-to-md "$@"
 fi
-org_file="$1"
-clean="$2"
+# check destination directory
+if [[ $# -eq 1 ]]; then
+	echo >&2 "No destination directory specified"
+	help-org-to-md "$@"
+fi
 #+end_src
 
 #+begin_src bash
-LAST_ERROR="convertation failed"
+in_dir=$(realpath "$1")
+out_dir=$(realpath -m "$2")
+clean="$3"
 #+end_src
 
 #+name: org-to-md
@@ -427,12 +435,31 @@ function org_to_md()
 	if [[ "$clean" == 1 ]]; then
 		extensions="-raw_attribute-raw_html-header_attributes-bracketed_spans"
 	fi
-	pandoc -s "$page" -t markdown"$extensions"
+	extensions+="+hard_line_breaks"
+	extensions+="-yaml_metadata_block-pandoc_title_block"
+	pandoc -s "$page" -t markdown"$extensions" --wrap=none
 }
 #+end_src
 
 #+begin_src bash
-org_to_md "$org_file" "$clean" || $live_or_die
+# greetings for github runner
+echo '::notice::Pandoc conversion action started!' | gh_echo
+
+# generate documentation
+echo '::group::Convert docs' | gh_echo
+LAST_ERROR="conversion failed"
+while IFS= read -d $'\0' -r path; do
+	dir=$(dirname "$(realpath -m -s "$path" --relative-base "$in_dir")")
+	file=$(basename "$path")
+
+	mkdir -p "$out_dir"/"$dir" || true 2> /dev/null
+	org_to_md "$in_dir"/"$dir"/"$file" 1 > "$out_dir"/"$dir"/"${file%.org}.md" \
+		|| $live_or_die
+done < <(find "$in_dir" -name '*.org' -print0)
+echo '::endgroup::' | gh_echo
+
+# goodbye
+echo '::notice::Pandoc conversion action ended!' | gh_echo
 #+end_src
 
 Exit.
@@ -579,10 +606,10 @@ done
 Shellcheck run.
 #+begin_src bash
 # run shellcheck
-LAST_ERROR="No shell scripts for checking are found"
+LAST_ERROR="no shell scripts for checking are found"
 [[ "${#files[@]}" != 0 ]] || $live_or_die
 {
-	ret=$( shellcheck -f gcc "${files[@]}" >&3
+	ret=$( shellcheck -x -f gcc "${files[@]}" >&3
 		   echo $? );
 } 3>&1
 #+end_src
@@ -851,7 +878,7 @@ fi
 #+end_src
 
 #+begin_src bash
-LAST_ERROR="Working directory is invalid"
+LAST_ERROR="working directory is invalid"
 [[ -d "$git_path" ]] || $live_or_die
 #+end_src
 
@@ -868,7 +895,7 @@ echo '::group::Clone repository' | gh_echo
 #+end_src
 
 #+begin_src bash
-LAST_ERROR="Git repository safe.directory configuration failed"
+LAST_ERROR="git repository safe.directory configuration failed"
 # fixes go build with -buildvcs option in unsafe git directories
 GIT_DIR=.nogit git config --global --add safe.directory "$git_repo_dir" || $live_or_die
 
@@ -890,10 +917,10 @@ echo '::group::Build go binary' | gh_echo
 
 #+begin_src bash
 # build hugo
-LAST_ERROR="Change directory to '${git_repo_dir}' failed"
+LAST_ERROR="change directory to '${git_repo_dir}' failed"
 pushd "$git_repo_dir" || $live_or_die
 
-LAST_ERROR="Go build failed"
+LAST_ERROR="go build failed"
 {
 	if [[ -f Makefile ]]; then
 		make -k -B
@@ -1228,35 +1255,14 @@ LAST_ERROR="documentation directory not found"
 [[ -d "$site_dir" ]] || $live_or_die
 #+end_src
 
-Generate documentation.
-#+begin_src bash
-<<org-to-md>>
-#+end_src
-
+Hugo.
 #+begin_src bash
 # generate documentation
-LAST_ERROR="generating documentation failed"
-while IFS= read -d $'\0' -r page; do
-	page_out="${page/${docs_dir}\//}"
-	page_dir="${page_out%/*}"
-	section_dir=""
-	if [[ "$page_dir" != "$page_out" ]]; then
-		section_dir="$page_dir"
-	fi
-
-	mkdir -p "$site_dir"/content/"$section_dir" || true 2> /dev/null
-	org_to_md "$page" 1 > "$site_dir"/content/"${page_out%.org}".md
-done < <(find "$docs_dir" -name '*.org' -print0)
-#+end_src
-
-Hugo.
-
-#+begin_src bash
 echo '::group::Generate hugo site' | gh_echo
 # hugo run
 chmod u+x "$hugo_bin"
 { pushd "$site_dir"; "$hugo_bin" mod get -u; popd; } || $live_or_die
-"$hugo_bin" -s "$site_dir" -d "$public_dir" || $live_or_die
+"$hugo_bin" -c "$docs_dir" -s "$site_dir" -d "$public_dir" || $live_or_die
 echo '::endgroup::' | gh_echo
 #+end_src
 
@@ -1298,8 +1304,7 @@ help-docsy-site() {
 	help "$@"
 }
 
-# greetings for github runner
-echo '::notice::Docsy site export started!' | gh_echo
+<<help-hugo-site>>
 #+end_src
 
 Check parameters.
@@ -1312,7 +1317,6 @@ fi
 #+end_src
 
 #+begin_src bash
-<<help-hugo-site>>
 <<check-hugo-site>>
 #+end_src
 
@@ -1324,7 +1328,7 @@ nvm &> /dev/null || git clone --depth=1 -b v0.39.2 https://github.com/nvm-sh/nvm
 source ~/.nvm/nvm.sh
 nvm use 18 || { nvm install 18; nvm use 18; } || $live_or_die
 # get npm modules
-pushd "${site_dir}/themes/docsy"
+pushd "${site_dir}"/themes/docsy
 npm install || $live_or_die
 popd
 npm install --save-dev autoprefixer postcss-cli postcss || $live_or_die
@@ -1333,7 +1337,7 @@ echo '::endgroup::' | gh_echo
 
 Run generation script.
 #+begin_src bash :eval no
-bash "${DOCKERFILE_SCRIPTS_PATH}"/hugo-site.sh  "$hugo_bin" "$docs_dir" "$site_dir" "$public_dir"
+NODE_PATH=$(realpath "./node_modules") bash "${DOCKERFILE_SCRIPTS_PATH}"/hugo-site.sh "$hugo_bin" "$docs_dir" "$site_dir" "$public_dir"
 #+end_src
 
 #+begin_src bash
@@ -1646,8 +1650,8 @@ Authenticate.
 LAST_ERROR="authentication failed"
 chmod u+x "$gh_bin"
 unset GITHUB_TOKEN
-GIT_DIR=.nogit "$gh_bin" auth login --git-protocol https --with-token <<< "$gh_token"
-GIT_DIR=.nogit "$gh_bin" auth setup-git
+GIT_DIR=.nogit "$gh_bin" auth login --git-protocol https --with-token <<< "$gh_token" || $live_or_die
+GIT_DIR=.nogit "$gh_bin" auth setup-git || $live_or_die
 #+end_src
 
 #+begin_src bash
@@ -1657,7 +1661,7 @@ echo '::group::Push site to GH pages' | gh_echo
 Publish to gh-pages (on push event).
 #+begin_src bash
 # publish site
-if [[ "$GITHUB_EVENT_NAME" == "push" ]] || [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+if [[ "${GITHUB_EVENT_NAME}" == "push" ]] || [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
 	LAST_ERROR="publish site failed"
 	pushd "$public_dir"
 	git init
@@ -1713,7 +1717,7 @@ LIVE_DEBUG=1
 Help.
 #+begin_src bash
 help-git-submodule() {
-	printf "Usage: %s: <GHBIN> <GITREPO> <GITBRANCH> <GITDIR>\n" "$0"
+	printf "Usage: %s: <GHBIN> <GITREPO> <GITBRANCH> <GITDIR> [GITAMEND]\n" "$0"
 	help "$@"
 }
 
@@ -1755,6 +1759,7 @@ gh_bin=$(realpath "$1")
 git_repo="$2"
 git_branch="$3"
 git_repo_dir=$(realpath "$4")
+git_amend="$5"
 #+end_src
 
 Authentication token for github pages.
@@ -1785,8 +1790,8 @@ Authenticate.
 LAST_ERROR="authentication failed"
 chmod u+x "$gh_bin"
 unset GITHUB_TOKEN
-GIT_DIR=.nogit "$gh_bin" auth login --git-protocol https --with-token <<< "$gh_token"
-GIT_DIR=.nogit "$gh_bin" auth setup-git
+GIT_DIR=.nogit "$gh_bin" auth login --git-protocol https --with-token <<< "$gh_token" || $live_or_die
+GIT_DIR=.nogit "$gh_bin" auth setup-git || $live_or_die
 #+end_src
 
 #+begin_src bash
@@ -1798,16 +1803,13 @@ Update git submodules (on push event).
 # update git submodules
 LAST_ERROR="git submodules update failed"
 git clone -b "$git_branch" "$git_repo" "$git_repo_dir" || $live_or_die
-pwd
-ls -al
 pushd "$git_repo_dir"
-ls -al
 git config --global --add safe.directory "$git_repo_dir" || $live_or_die
 git config user.name "git-submodule action"
 git config user.email "nobody@nowhere"
 git submodule update --init --force --remote --recursive
 git add .
-git commit --amend --allow-empty -m "actions: update git submodules" \
+git commit ${git_amend:+--amend} --allow-empty -m "actions: update git submodules" \
 	--author="git-submodule action <nobody@nowhere>" || $live_or_die
 git push "origin" "$git_branch" --force
 popd
