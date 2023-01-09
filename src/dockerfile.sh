@@ -13,13 +13,15 @@ die() {
 	printf "%s: ${LAST_ERROR}\n" "$0" >&2
 	exit 1
 }
+
 live() {
 	true
 }
+
 live_or_die=${LIVE_OR_DIE:-die}
 
 LAST_ERROR=
-trap '$live_or_die' ERR
+trap '${live_or_die}' ERR
 
 help-dockerfile() {
 	printf "Usage: %s: <DOCKERFILE_TEMPLATE> <DOCKERFILE>\n" "$0"
@@ -38,13 +40,15 @@ if [[ $# -eq 1 ]]; then
 	help-dockerfile "$@"
 fi
 
-dockerfile=$(realpath "$1")
-dockerfile_out=$(realpath "$2")
+dockerfile_template=$(realpath "$1")
+dockerfile=$(realpath "$2")
 
-LAST_ERROR="input and output dockerfiles are the same file"
-[[ "$dockerfile" != "$dockerfile_out" ]] || $live_or_die
+LAST_ERROR="dockerfile template and output dockerfile are the same file"
+[[ "${dockerfile_template}" != "${dockerfile}" ]] || $live_or_die
 
-LAST_ERROR="no dockerfile '${dockerfile}' found"
-[[ -f "$dockerfile" ]] || $live_or_die
+LAST_ERROR="no dockerfile template '${dockerfile_template}' found"
+[[ -f "${dockerfile_template}" ]] || $live_or_die
 
-env envsubst < "$dockerfile" > "$dockerfile_out"
+env envsubst < "${dockerfile_template}" > "${dockerfile}"
+
+exit 0

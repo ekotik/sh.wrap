@@ -13,13 +13,15 @@ die() {
 	printf "%s: ${LAST_ERROR}\n" "$0" >&2
 	exit 1
 }
+
 live() {
 	true
 }
+
 live_or_die=${LIVE_OR_DIE:-die}
 
 LAST_ERROR=
-trap '$live_or_die' ERR
+trap '${live_or_die}' ERR
 
 gh_mode=0
 # shellcheck disable=SC2153
@@ -28,16 +30,18 @@ gh_mode=0
 gh_echo() {
 	local gh_commands
 
-	[[ "$gh_mode" == 0 ]] && return 0;
+	[[ "${gh_mode}" == 0 ]] && return 0;
 	read -d $'\0' -r gh_commands || true;
 	echo -en "${gh_commands}\n"
 }
 
-declare xtrace
+declare -g xtrace
+
 reset_xtrace() {
 	xtrace=$(set -o | grep "xtrace" | grep "on" || true)
 	set +o xtrace
 }
+
 restore_xtrace()
 {
 	set "${xtrace:-+}"o xtrace
@@ -46,7 +50,7 @@ restore_xtrace()
 }
 
 help-git-submodule() {
-	printf "Usage: %s: <GHBIN> <GITREPO> <GITBRANCH> <GITDIR> [GITAMEND]\n" "$0"
+	printf "Usage: %s: <GH_BIN> <GIT_REPO> <GIT_BRANCH> <GIT_REPO_DIR> [GIT_AMEND]\n" "$0"
 	help "$@"
 }
 
@@ -84,34 +88,34 @@ restore_xtrace
 
 # check paths
 LAST_ERROR="gh binary not found"
-[[ -f "$gh_bin" ]] || $live_or_die
+[[ -f "${gh_bin}" ]] || $live_or_die
 # check token
 LAST_ERROR="authentication token is empty"
 reset_xtrace
-[[ -n "$gh_token" ]] || $live_or_die
+[[ -n "${gh_token}" ]] || $live_or_die
 restore_xtrace
 
 # authenticate with token
 LAST_ERROR="authentication failed"
-chmod u+x "$gh_bin"
+chmod u+x "${gh_bin}"
 unset GITHUB_TOKEN
-GIT_DIR=.nogit "$gh_bin" auth login --git-protocol https --with-token <<< "$gh_token" || $live_or_die
-GIT_DIR=.nogit "$gh_bin" auth setup-git || $live_or_die
+GIT_DIR=.nogit "${gh_bin}" auth login --git-protocol https --with-token <<< "${gh_token}" || $live_or_die
+GIT_DIR=.nogit "${gh_bin}" auth setup-git || $live_or_die
 
 echo '::group::Update git submodules' | gh_echo
 
 # update git submodules
 LAST_ERROR="git submodules update failed"
-git clone -b "$git_branch" "$git_repo" "$git_repo_dir" || $live_or_die
-pushd "$git_repo_dir"
-git config --global --add safe.directory "$git_repo_dir" || $live_or_die
+git clone -b "${git_branch}" "${git_repo}" "${git_repo_dir}" || $live_or_die
+pushd "${git_repo_dir}"
+git config --global --add safe.directory "${git_repo_dir}" || $live_or_die
 git config user.name "git-submodule action"
 git config user.email "nobody@nowhere"
 git submodule update --init --force --remote --recursive
 git add .
 git commit ${git_amend:+--amend} --allow-empty -m "actions: update git submodules" \
 	--author="git-submodule action <nobody@nowhere>" || $live_or_die
-git push "origin" "$git_branch" --force
+git push "origin" "${git_branch}" --force
 popd
 
 echo '::endgroup::' | gh_echo

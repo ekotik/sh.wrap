@@ -13,13 +13,15 @@ die() {
 	printf "%s: ${LAST_ERROR}\n" "$0" >&2
 	exit 1
 }
+
 live() {
 	true
 }
+
 live_or_die=${LIVE_OR_DIE:-die}
 
 LAST_ERROR=
-trap '$live_or_die' ERR
+trap '${live_or_die}' ERR
 
 gh_mode=0
 # shellcheck disable=SC2153
@@ -28,16 +30,18 @@ gh_mode=0
 gh_echo() {
 	local gh_commands
 
-	[[ "$gh_mode" == 0 ]] && return 0;
+	[[ "${gh_mode}" == 0 ]] && return 0;
 	read -d $'\0' -r gh_commands || true;
 	echo -en "${gh_commands}\n"
 }
 
-declare xtrace
+declare -g xtrace
+
 reset_xtrace() {
 	xtrace=$(set -o | grep "xtrace" | grep "on" || true)
 	set +o xtrace
 }
+
 restore_xtrace()
 {
 	set "${xtrace:-+}"o xtrace
@@ -46,7 +50,7 @@ restore_xtrace()
 }
 
 help-test-workflows() {
-	printf "Usage: %s: <GITHUBREPO> <DATADIRS...>\n" "$0"
+	printf "Usage: %s: <GITHUB_REPO> <DATA_DIRS...>\n" "$0"
 	help "$@"
 }
 
@@ -70,12 +74,12 @@ restore_xtrace
 # check paths
 LAST_ERROR="authentication token is empty"
 reset_xtrace
-[[ -n "$gh_token" ]] || $live_or_die
+[[ -n "${gh_token}" ]] || $live_or_die
 restore_xtrace
 
 # fill in data directories
 declare -a data_dirs
-if [[ "$gh_mode" == 1 ]]; then
+if [[ "${gh_mode}" == 1 ]]; then
 	readarray -t -d $'\n' data_dirs < <(echo -e "$@")
 else
 	data_dirs+=("$@")
@@ -86,10 +90,10 @@ function test_workflow()
 	local data_template="$1"
 	local datafile="$2"
 	# shellcheck disable=SC1090
-	source "$datafile"
+	source "${datafile}"
 	local API_WORKFLOW_DISPATCH="https://api.github.com/repos/${github_repo}/actions/workflows/${WORKFLOW_ID}/dispatches"
 	LAST_ERROR="${data_template} (${datafile}): test dispatch failed"
-	env envsubst < "$data_template" | \
+	env envsubst < "${data_template}" | \
 		jq '{ ref: .ref, inputs: { run_id: .inputs.run_id, payload: (.inputs.payload | tostring) }}' | \
 		curl -X POST "${API_WORKFLOW_DISPATCH}" --fail \
 			 -H "Authorization: Bearer ${gh_token}" \
@@ -100,15 +104,15 @@ function test_workflow()
 data_templates=()
 for data_dir in "${data_dirs[@]}"; do
 	while IFS=$'\0' read -d $'\0' -r data_template; do
-		data_templates+=("$data_template")
-	done < <(find "$data_dir" -name '*.json' -print0)
+		data_templates+=("${data_template}")
+	done < <(find "${data_dir}" -name '*.json' -print0)
 done
 
 for data_template in "${data_templates[@]}"; do
 	data_path="${data_template%.json}"
 	while IFS=$'\0' read -d $'\0' -r datafile; do
-		test_workflow "$data_template" "$datafile"
-	done < <(find "$data_path" -name '*.sh' -print0)
+		test_workflow "${data_template}" "${datafile}"
+	done < <(find "${data_path}" -name '*.sh' -print0)
 done
 
 exit 0

@@ -13,13 +13,15 @@ die() {
 	printf "%s: ${LAST_ERROR}\n" "$0" >&2
 	exit 1
 }
+
 live() {
 	true
 }
+
 live_or_die=${LIVE_OR_DIE:-die}
 
 LAST_ERROR=
-trap '$live_or_die' ERR
+trap '${live_or_die}' ERR
 
 gh_mode=0
 # shellcheck disable=SC2153
@@ -28,20 +30,23 @@ gh_mode=0
 gh_echo() {
 	local gh_commands
 
-	[[ "$gh_mode" == 0 ]] && return 0;
+	[[ "${gh_mode}" == 0 ]] && return 0;
 	read -d $'\0' -r gh_commands || true;
 	echo -en "${gh_commands}\n"
 }
 
 help-docsy-site() {
-	printf "Usage: %s: <HUGOPATH> <DOCSDIR> <SITEDIR> <PUBLICDIR>\n" "$0"
+	printf "Usage: %s: <HUGO_BIN> <DOCS_DIR> <SITE_DIR> <PUBLIC_DIR>\n" "$0"
 	help "$@"
 }
 
 help-hugo-site() {
-	printf "Usage: %s: <HUGOPATH> <DOCSDIR> <SITEDIR> <PUBLICDIR>\n" "$0"
+	printf "Usage: %s: <HUGO_BIN> <DOCS_DIR> <SITE_DIR> <PUBLIC_DIR>\n" "$0"
 	help "$@"
 }
+
+# greetings for github runner
+echo '::notice::Docsy site export started!' | gh_echo
 
 # check parameters
 if [[ $# -eq 0 ]]; then
@@ -95,7 +100,7 @@ popd
 npm install --save-dev autoprefixer postcss-cli postcss || $live_or_die
 echo '::endgroup::' | gh_echo
 
-NODE_PATH=$(realpath "./node_modules") bash "${DOCKERFILE_SCRIPTS_PATH}"/hugo-site.sh "$hugo_bin" "$docs_dir" "$site_dir" "$public_dir"
+NODE_PATH=$(realpath "./node_modules") bash "${DOCKERFILE_SCRIPTS_PATH}"/hugo-site.sh "${hugo_bin}" "${docs_dir}" "${site_dir}" "${public_dir}"
 
 # goodbye
 echo '::notice::Docsy site export ended!' | gh_echo

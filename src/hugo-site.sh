@@ -13,13 +13,15 @@ die() {
 	printf "%s: ${LAST_ERROR}\n" "$0" >&2
 	exit 1
 }
+
 live() {
 	true
 }
+
 live_or_die=${LIVE_OR_DIE:-die}
 
 LAST_ERROR=
-trap '$live_or_die' ERR
+trap '${live_or_die}' ERR
 
 gh_mode=0
 # shellcheck disable=SC2153
@@ -28,13 +30,13 @@ gh_mode=0
 gh_echo() {
 	local gh_commands
 
-	[[ "$gh_mode" == 0 ]] && return 0;
+	[[ "${gh_mode}" == 0 ]] && return 0;
 	read -d $'\0' -r gh_commands || true;
 	echo -en "${gh_commands}\n"
 }
 
 help-hugo-site() {
-	printf "Usage: %s: <HUGOPATH> <DOCSDIR> <SITEDIR> <PUBLICDIR>\n" "$0"
+	printf "Usage: %s: <HUGO_BIN> <DOCS_DIR> <SITE_DIR> <PUBLIC_DIR>\n" "$0"
 	help "$@"
 }
 
@@ -69,16 +71,16 @@ public_dir=$(realpath "$4")
 
 # check paths
 LAST_ERROR="hugo binary not found"
-[[ -f "$hugo_bin" ]] || $live_or_die
+[[ -f "${hugo_bin}" ]] || $live_or_die
 LAST_ERROR="documentation directory not found"
-[[ -d "$site_dir" ]] || $live_or_die
+[[ -d "${site_dir}" ]] || $live_or_die
 
 # generate documentation
 echo '::group::Generate hugo site' | gh_echo
 # hugo run
-chmod u+x "$hugo_bin"
-{ pushd "$site_dir"; "$hugo_bin" mod get -u; popd; } || $live_or_die
-"$hugo_bin" -c "$docs_dir" -s "$site_dir" -d "$public_dir" || $live_or_die
+chmod u+x "${hugo_bin}"
+{ pushd "${site_dir}"; "${hugo_bin}" mod get -u; popd; } || $live_or_die
+"${hugo_bin}" -c "${docs_dir}" -s "${site_dir}" -d "${public_dir}" || $live_or_die
 echo '::endgroup::' | gh_echo
 
 # goodbye

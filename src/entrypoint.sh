@@ -8,7 +8,7 @@ help() {
 }
 
 help-entrypoint() {
-	printf "Usage: %s: <WORKDIR> <SCRIPT> <ARGS...>\n" "$0"
+	printf "Usage: %s: <WORK_DIR> <SCRIPT> [ARGS...]\n" "$0"
 	help "$@"
 }
 
@@ -25,5 +25,5 @@ work_dir=$(realpath "$1")
 script="$2"
 shift 2
 
-cd "$work_dir"
-bash "$script" "$@"
+cd "${work_dir}"
+bash "${script}" "$@"
