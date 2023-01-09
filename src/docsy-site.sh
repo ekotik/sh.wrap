@@ -89,7 +89,7 @@ fi
 
 LAST_ERROR="docsy site export failed"
 echo '::group::Install docsy theme dependencies' | gh_echo
-nvm &> /dev/null || git clone --depth=1 -b v0.39.2 https://github.com/nvm-sh/nvm ~/.nvm || $live_or_die
+nvm &> /dev/null || git clone --depth=1 -b v0.39.2 https://github.com/ekotik/nvm ~/.nvm || $live_or_die
 # shellcheck disable=SC1090
 source ~/.nvm/nvm.sh
 nvm use 18 || { nvm install 18; nvm use 18; } || $live_or_die
