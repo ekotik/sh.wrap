@@ -75,6 +75,13 @@ docs_dir=$(realpath "$2")
 site_dir=$(realpath "$3")
 public_dir=$(realpath "$4")
 
+# check environment
+env
+if [[ -z "${DOCKERFILE_SCRIPTS_PATH}" ]]; then
+	echo >&2 "Environment variable 'DOCKERFILE_SCRIPTS_PATH' is not exposed"
+	help-docsy-site "$@"
+fi
+
 LAST_ERROR="docsy site export failed"
 echo '::group::Install docsy theme dependencies' | gh_echo
 nvm &> /dev/null || git clone --depth=1 -b v0.39.2 https://github.com/nvm-sh/nvm ~/.nvm || $live_or_die
