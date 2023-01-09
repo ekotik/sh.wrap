@@ -10,6 +10,7 @@ title: GH actions
 date: 2022-10-27
 weight: 1
 url: /actions/
+tags: ["actions", "devdocs"]
 ---
 #+end_export
 
