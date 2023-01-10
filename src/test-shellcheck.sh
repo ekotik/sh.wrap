@@ -85,4 +85,6 @@ fi
 # goodbye
 echo '::notice::Shellcheck action ended!' | gh_echo
 
+# shellcheck disable=SC2086
+# expected variable
 exit $ret
