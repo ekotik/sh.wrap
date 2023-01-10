@@ -13,7 +13,7 @@ on:
 env:
   WORK_DIR: "/github/workspace/_actions"
   SCRIPT: "./test/workflow/test-workflows.sh"
-  GITHUB_REPO: "antirs/sh.wrap"
+  GITHUB_REPO: "ekotik/sh.wrap"
 
 jobs:
   test-workflows:
