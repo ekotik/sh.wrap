@@ -1,0 +1,36 @@
+name: "Test: Run tests (docker)"
+description: "Test runner driven by microspec"
+
+permissions: {}
+
+inputs:
+  work_dir:
+    description: "Working directory"
+    default: "/github/workspace"
+  script:
+    description: "Run script"
+    default: "./_actions/src/test-runner.sh"
+  microspec_path:
+    description: "microspec path"
+    type: string
+    default: "/te/microspec"
+  microspec_exec:
+    description: "microspec executable"
+    type: string
+    default: "microspec"
+  microspec_args:
+    description: "microspec arguments"
+    type: string
+    default: ""
+
+runs:
+  using: docker
+  image: "../../../../test-runner.Dockerfile"
+  args:
+    - "${{ inputs.work_dir }}"
+    - "${{ inputs.script }}"
+    - "${{ inputs.microspec_path }}"
+    - "${{ inputs.microspec_exec }}"
+    - "${{ inputs.microspec_args }}"
+  env:
+    GH_MODE: 1
