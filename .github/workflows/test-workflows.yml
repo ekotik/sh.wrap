@@ -37,6 +37,6 @@ jobs:
           script: "${{ env.SCRIPT }}"
           github_repo: "${{ env.GITHUB_REPO }}"
           data_dirs: |
-            ./test/workflow/data/test-runner
+            ./test/workflow/data/actions
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
