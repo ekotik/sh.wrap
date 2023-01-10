@@ -1,0 +1,19 @@
+{
+  "ref": "${REF}",
+  "inputs":
+  {
+    "run_id": "${RUN_ID}",
+    "payload":
+    {
+      "dockerfile_template": "${DOCKERFILE_TEMPLATE}",
+      "dockerfile": "${DOCKERFILE}",
+      "work_dir": "${WORK_DIR}",
+      "script": "${SCRIPT}",
+      "bash_docker_version": "${BASH_DOCKER_VERSION}",
+      "microspec_source": "${MICROSPEC_SOURCE}",
+      "microspec_dest": "${MICROSPEC_DEST}",
+      "microspec_exec": "${MICROSPEC_EXEC}",
+      "microspec_args": "${MICROSPEC_ARGS}"
+    }
+  }
+}
