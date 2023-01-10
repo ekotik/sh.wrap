@@ -1,0 +1,87 @@
+name: "Test: Run tests"
+
+permissions: {}
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}-test-runner-${{ github.run_id }}-${{ inputs.run_id }}"
+  cancel-in-progress: false
+
+on:
+  workflow_call:
+    inputs:
+      run_id:
+        description: "Run ID"
+        type: string
+        required: true
+      dockerfile_template:
+        description: "Dockerfile template file"
+        type: string
+        default: "./_actions/docker/test-runner.Dockerfile"
+      dockerfile:
+        description: "Dockerfile to build and run"
+        type: string
+        default: "test-runner.Dockerfile"
+      work_dir:
+        description: "Working directory"
+        type: string
+        default: "/github/workspace"
+      script:
+        description: "Run script"
+        type: string
+        default: "./_actions/src/test-runner.sh"
+      bash_docker_version:
+        description: "Bash version"
+        type: string
+        default: "5.2"
+      microspec_source:
+        description: "microspec path (host)"
+        type: string
+        default: "./test/microspec"
+      microspec_dest:
+        description: "microspec path (docker)"
+        type: string
+        default: "/te/microspec"
+      microspec_exec:
+        description: "microspec executable"
+        type: string
+        default: "microspec"
+      microspec_args:
+        description: "microspec arguments"
+        type: string
+        default: ""
+
+env:
+  DOCKERFILE_SCRIPTS_PATH: "./_actions/src"
+  RUN_ID: "${{ inputs.run_id }}"
+  DOCKERFILE_TEMPLATE: "${{ inputs.dockerfile_template }}"
+  DOCKERFILE: "${{ inputs.dockerfile }}"
+  WORK_DIR: "${{ inputs.work_dir }}"
+  SCRIPT: "${{ inputs.script }}"
+  BASH_DOCKER_VERSION: "${{ inputs.bash_docker_version }}"
+  MICROSPEC_SOURCE: "${{ inputs.microspec_source }}"
+  MICROSPEC_DEST: "${{ inputs.microspec_dest }}"
+  MICROSPEC_EXEC: "${{ inputs.microspec_exec }}"
+  MICROSPEC_ARGS: "${{ inputs.microspec_args }}"
+
+jobs:
+  test-runner:
+    concurrency:
+      group: "test-runner/test-runner-${{ inputs.run_id }}"
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: "Checkout actions"
+        uses: ekotik/sh.wrap@actions
+      - uses: ./_actions/.github/actions/prepare-dockerfile
+      - name: "Run tests"
+        uses: ./_actions/.github/actions/test-runner
+        with:
+          work_dir: "${{ inputs.work_dir }}"
+          script: "${{ inputs.script }}"
+          microspec_path: "${{ inputs.microspec_dest }}"
+          microspec_exec: "${{ inputs.microspec_exec }}"
+          microspec_args: "${{ inputs.microspec_args }}"

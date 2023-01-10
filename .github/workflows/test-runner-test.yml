@@ -1,0 +1,38 @@
+name: "Test: Run tests (workflow)"
+run-name: "Test: Run tests - ${{ inputs.run_id }}"
+
+permissions: {}
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}-test-runner-test-${{ github.run_id }}"
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "Run ID"
+        type: string
+        required: true
+      payload:
+        description: "Inputs payload"
+        type: string
+        required: true
+
+jobs:
+  test-runner-test:
+    concurrency:
+      group: "test-runner-test/test-runner-test-${{ inputs.run_id }}"
+      cancel-in-progress: true
+    uses: ekotik/sh.wrap/.github/workflows/test-runner.yml@actions
+    with:
+      run_id: "${{ inputs.run_id }}"
+      dockerfile_template: "${{ fromJson(inputs.payload).dockerfile_template }}"
+      dockerfile: "${{ fromJson(inputs.payload).dockerfile }}"
+      work_dir: "${{ fromJson(inputs.payload).work_dir }}"
+      script: "${{ fromJson(inputs.payload).script }}"
+      bash_docker_version: "${{ fromJson(inputs.payload).bash_docker_version }}"
+      microspec_source: "${{ fromJson(inputs.payload).microspec_source }}"
+      microspec_dest: "${{ fromJson(inputs.payload).microspec_dest }}"
+      microspec_exec: "${{ fromJson(inputs.payload).microspec_exec }}"
+      microspec_args: "${{ fromJson(inputs.payload).microspec_args }}"
