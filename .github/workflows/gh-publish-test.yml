@@ -36,6 +36,22 @@ jobs:
         with:
           name: "${{ fromJson(inputs.payload).public_cache }}"
           path: "${{ fromJson(inputs.payload).public_dir }}"
+  pre-gh-publish-hub-test:
+    concurrency:
+      group: "gh-publish-test/pre-gh-publish-hub-test-${{ inputs.run_id }}"
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Make site"
+        run: |
+          public_dir="${{ fromJson(inputs.payload).public_dir }}"
+          mkdir -p "$public_dir"
+          echo "It works!" > "$public_dir"/index.html
+      - name: "Archive site"
+        uses: actions/upload-artifact@v3
+        with:
+          name: "${{ fromJson(inputs.payload).public_cache }}-hub"
+          path: "${{ fromJson(inputs.payload).public_dir }}"
   gh-publish-test:
     permissions:
       contents: write
@@ -68,7 +84,7 @@ jobs:
       group: "gh-publish-test/gh-publish-hub-test-${{ inputs.run_id }}"
       cancel-in-progress: true
     needs:
-      - pre-gh-publish-test
+      - pre-gh-publish-hub-test
     uses: ekotik/sh.wrap/.github/workflows/gh-publish-hub.yml@actions
     with:
       run_id: "${{ fromJson(inputs.payload).run_id }}"
