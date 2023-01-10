@@ -1,0 +1,42 @@
+name: "Run: Update git submodules (docker hub)"
+description: "Update git submodules (docker hub)"
+
+permissions:
+  contents: write
+
+inputs:
+  work_dir:
+    description: "Working directory"
+    default: "/github/workspace"
+  script:
+    description: "Run script"
+    default: "./_actions/src/update-submodules.sh"
+  gh_bin:
+    description: "gh binary"
+    default: "/go/gh"
+  git_repo:
+    description: "Git repository"
+    required: true
+  git_branch:
+    description: "Git repository branch"
+    required: true
+  git_repo_dir:
+    description: "Git repository directory"
+    required: true
+  git_amend:
+    description: "Git amend commit"
+    default: ""
+
+runs:
+  using: docker
+  image: docker://docker.io/antirs/shwrap:git-tasks
+  args:
+    - "${{ inputs.work_dir }}"
+    - "${{ inputs.script }}"
+    - "${{ inputs.gh_bin }}"
+    - "${{ inputs.git_repo }}"
+    - "${{ inputs.git_branch }}"
+    - "${{ inputs.git_repo_dir }}"
+    - "${{ inputs.git_amend }}"
+  env:
+    GH_MODE: 1

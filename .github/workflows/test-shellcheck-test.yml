@@ -32,3 +32,13 @@ jobs:
       work_dir: "${{ fromJson(inputs.payload).work_dir }}"
       script: "${{ fromJson(inputs.payload).script }}"
       dirs: "${{ fromJson(inputs.payload).dirs }}"
+  test-shellcheck-hub-test:
+    concurrency:
+      group: "test-shellcheck-test/test-shellcheck-hub-test-${{ inputs.run_id }}"
+      cancel-in-progress: true
+    uses: ekotik/sh.wrap/.github/workflows/test-shellcheck-hub.yml@actions
+    with:
+      run_id: "${{ inputs.run_id }}"
+      work_dir: "${{ fromJson(inputs.payload).work_dir }}"
+      script: "${{ fromJson(inputs.payload).script }}"
+      dirs: "${{ fromJson(inputs.payload).dirs }}"

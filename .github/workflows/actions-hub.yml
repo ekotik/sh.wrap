@@ -1,0 +1,109 @@
+name: "Build and publish hugo site (hub)"
+
+permissions: {}
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}-actions-hub-${{ github.run_id }}-${{ inputs.run_id }}"
+  cancel-in-progress: false
+
+on:
+  workflow_call:
+    inputs:
+      run_id:
+        description: "Run ID"
+        type: string
+        required: true
+      work_dir:
+        description: "Working directory"
+        type: string
+        default: "/github/workspace"
+      script_hugo_site:
+        description: "Run script (hugo-site)"
+        type: string
+        default: "./_actions/src/hugo-site.sh"
+      script_gh_publish:
+        description: "Run script (gh-publish)"
+        type: string
+        default: "./_actions/src/gh-publish.sh"
+      gh_bin:
+        description: "gh binary (docker)"
+        type: string
+        default: "/go/gh"
+      hugo_bin:
+        description: "hugo binary (docker)"
+        type: string
+        default: "/go/hugo"
+      docs_dir:
+        description: "Documentation directory"
+        type: string
+        default: "./doc"
+      site_dir:
+        description: "Site directory"
+        type: string
+        default: "./doc/site"
+      public_dir:
+        description: "Publish directory"
+        type: string
+        required: true
+      public_cache:
+        description: "Publish cache"
+        type: string
+        default: "hugo-site"
+      gh_pages_repo:
+        description: "GH pages repository"
+        type: string
+        required: true
+      gh_pages_branch:
+        description: "GH pages branch"
+        type: string
+        required: true
+
+env:
+  RUN_ID: "${{ inputs.run_id }}"
+  WORK_DIR: "${{ inputs.work_dir }}"
+  SCRIPT_HUGO_SITE: "${{ inputs.script_hugo_site }}"
+  SCRIPT_GH_PUBLISH: "${{ inputs.script_gh_publish }}"
+  GH_BIN: "${{ inputs.gh_bin }}"
+  HUGO_BIN: "${{ inputs.hugo_bin }}"
+  DOCS_DIR: "${{ inputs.docs_dir }}"
+  SITE_DIR: "${{ inputs.site_dir }}"
+  PUBLIC_DIR: "${{ inputs.public_dir }}"
+  PUBLIC_CACHE: "${{ inputs.public_cache }}"
+  GH_PAGES_REPO: "${{ inputs.gh_pages_repo }}"
+  GH_PAGES_BRANCH: "${{ inputs.gh_pages_branch }}"
+
+jobs:
+  hugo-site:
+    permissions:
+      contents: write
+    concurrency:
+      group: "actions-hub/hugo-site-${{ inputs.run_id }}"
+      cancel-in-progress: true
+    uses: ekotik/sh.wrap/.github/workflows/hugo-site-hub.yml@actions
+    with:
+      run_id: "${{ inputs.run_id }}"
+      work_dir: "${{ inputs.work_dir }}"
+      script: "${{ inputs.script_hugo_site }}"
+      hugo_bin: "${{ inputs.hugo_bin }}"
+      docs_dir: "${{ inputs.docs_dir }}"
+      site_dir: "${{ inputs.site_dir }}"
+      public_dir: "${{ inputs.public_dir }}"
+      public_cache: "${{ inputs.public_cache }}"
+  gh-publish:
+    permissions:
+      contents: write
+    concurrency:
+      group: "actions-hub/gh-publish-${{ inputs.run_id }}"
+      cancel-in-progress: true
+    needs:
+      - hugo-site
+    uses: ekotik/sh.wrap/.github/workflows/gh-publish-hub.yml@actions
+    with:
+      run_id: "${{ inputs.run_id }}"
+      work_dir: "${{ inputs.work_dir }}"
+      script: "${{ inputs.script_gh_publish }}"
+      gh_bin: "${{ inputs.gh_bin }}"
+      gh_pages_repo: "${{ inputs.gh_pages_repo }}"
+      gh_pages_branch: "${{ inputs.gh_pages_branch }}"
+      public_dir: "${{ inputs.public_dir }}"
+      public_cache: "${{ inputs.public_cache }}"

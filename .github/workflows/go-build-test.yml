@@ -37,3 +37,18 @@ jobs:
       build_args: "${{ fromJson(inputs.payload).build_args }}"
       go_bin: "${{ fromJson(inputs.payload).go_bin }}"
       use_cache: ${{ fromJson(inputs.payload).use_cache }}
+  go-build-hub-test:
+    concurrency:
+      group: "go-build-test/go-build-hub-test-${{ inputs.run_id }}"
+      cancel-in-progress: true
+    uses: ekotik/sh.wrap/.github/workflows/go-build-hub.yml@actions
+    with:
+      run_id: "${{ inputs.run_id }}"
+      work_dir: "${{ fromJson(inputs.payload).work_dir }}"
+      script: "${{ fromJson(inputs.payload).script }}"
+      git_path: "${{ fromJson(inputs.payload).git_path }}"
+      git_repo: "${{ fromJson(inputs.payload).git_repo }}"
+      git_hash: "${{ fromJson(inputs.payload).git_hash }}"
+      build_args: "${{ fromJson(inputs.payload).build_args }}"
+      go_bin: "${{ fromJson(inputs.payload).go_bin }}"
+      use_cache: ${{ fromJson(inputs.payload).use_cache }}
