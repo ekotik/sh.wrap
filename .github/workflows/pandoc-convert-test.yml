@@ -36,3 +36,17 @@ jobs:
       pandoc_clean: "${{ fromJson(inputs.payload).pandoc_clean }}"
       out_cache: "${{ fromJson(inputs.payload).out_cache }}"
       out_cache_dir: "${{ fromJson(inputs.payload).out_cache_dir }}"
+  pandoc-convert-hub-test:
+    concurrency:
+      group: "pandoc-convert-test/pandoc-convert-hub-test-${{ inputs.run_id }}"
+      cancel-in-progress: true
+    uses: ekotik/sh.wrap/.github/workflows/pandoc-convert-hub.yml@actions
+    with:
+      run_id: "${{ inputs.run_id }}"
+      work_dir: "${{ fromJson(inputs.payload).work_dir }}"
+      script: "${{ fromJson(inputs.payload).script }}"
+      in_dir: "${{ fromJson(inputs.payload).in_dir }}"
+      out_dir: "${{ fromJson(inputs.payload).out_dir }}"
+      pandoc_clean: "${{ fromJson(inputs.payload).pandoc_clean }}"
+      out_cache: "${{ fromJson(inputs.payload).out_cache }}-hub"
+      out_cache_dir: "${{ fromJson(inputs.payload).out_cache_dir }}"

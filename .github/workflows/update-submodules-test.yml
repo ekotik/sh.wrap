@@ -43,3 +43,19 @@ jobs:
       git_branch: "${{ fromJson(inputs.payload).git_branch }}"
       git_repo_dir: "${{ fromJson(inputs.payload).git_repo_dir }}"
       git_amend: "${{ fromJson(inputs.payload).git_amend }}"
+  update-submodules-hub-test:
+    permissions:
+      contents: write
+    concurrency:
+      group: "update-submodules-test/update-submodules-hub-test-${{ inputs.run_id }}"
+      cancel-in-progress: true
+    uses: ekotik/sh.wrap/.github/workflows/update-submodules-hub.yml@actions
+    with:
+      run_id: "${{ fromJson(inputs.payload).run_id }}"
+      work_dir: "${{ fromJson(inputs.payload).work_dir }}"
+      script: "${{ fromJson(inputs.payload).script }}"
+      gh_bin: "${{ fromJson(inputs.payload).gh_bin_dest }}"
+      git_repo: "${{ fromJson(inputs.payload).git_repo }}"
+      git_branch: "${{ fromJson(inputs.payload).git_branch }}"
+      git_repo_dir: "${{ fromJson(inputs.payload).git_repo_dir }}"
+      git_amend: "${{ fromJson(inputs.payload).git_amend }}"

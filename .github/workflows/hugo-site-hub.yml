@@ -1,0 +1,81 @@
+name: "Run: Build hugo site (hub)"
+
+permissions: {}
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}-hugo-site-hub-${{ github.run_id }}-${{ inputs.run_id }}"
+  cancel-in-progress: false
+
+on:
+  workflow_call:
+    inputs:
+      run_id:
+        description: "Run ID"
+        type: string
+        required: true
+      work_dir:
+        description: "Working directory"
+        type: string
+        default: "/github/workspace"
+      script:
+        description: "Run script"
+        type: string
+        default: "./_actions/src/hugo-site.sh"
+      hugo_bin:
+        description: "hugo binary (docker)"
+        type: string
+        default: "/go/hugo"
+      docs_dir:
+        description: "Documentation directory"
+        type: string
+        default: "./doc"
+      site_dir:
+        description: "Site directory"
+        type: string
+        default: "./doc/site"
+      public_dir:
+        description: "Publish directory"
+        type: string
+        default: "./public"
+      public_cache:
+        description: "Publish cache"
+        type: string
+        default: "hugo-site"
+
+env:
+  DOCKERFILE_SCRIPTS_PATH: "./_actions/src"
+  RUN_ID: "${{ inputs.run_id }}"
+  WORK_DIR: "${{ inputs.work_dir }}"
+  SCRIPT: "${{ inputs.script }}"
+  HUGO_BIN: "${{ inputs.hugo_bin }}"
+  DOCS_DIR: "${{ inputs.docs_dir }}"
+  SITE_DIR: "${{ inputs.site_dir }}"
+  PUBLIC_DIR: "${{ inputs.public_dir }}"
+  PUBLIC_CACHE: "${{ inputs.public_cache }}"
+
+jobs:
+  hugo-site:
+    concurrency:
+      group: "hugo-site-hub/hugo-site-${{ inputs.run_id }}"
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: "Checkout actions"
+        uses: ekotik/sh.wrap@actions
+      - name: "Build hugo site"
+        uses: ./_actions/.github/actions/hugo-site-hub
+        with:
+          script: "${{ inputs.script }}"
+          hugo_bin: "${{ inputs.hugo_bin }}"
+          docs_dir: "${{ inputs.docs_dir }}"
+          site_dir: "${{ inputs.site_dir }}"
+          public_dir: "${{ inputs.public_dir }}"
+      - name: "Archive hugo site"
+        uses: actions/upload-artifact@v3
+        with:
+          name: "${{ inputs.public_cache }}"
+          path: "${{ inputs.public_dir }}"

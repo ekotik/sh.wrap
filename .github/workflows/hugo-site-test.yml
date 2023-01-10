@@ -42,3 +42,18 @@ jobs:
       docs_dir: "${{ fromJson(inputs.payload).docs_dir }}"
       site_dir: "${{ fromJson(inputs.payload).site_dir }}"
       public_cache: "${{ fromJson(inputs.payload).public_cache }}"
+  hugo-site-hub-test:
+    permissions:
+      contents: write
+    concurrency:
+      group: "hugo-site-test/hugo-site-hub-test-${{ inputs.run_id }}"
+      cancel-in-progress: true
+    uses: ekotik/sh.wrap/.github/workflows/hugo-site-hub.yml@actions
+    with:
+      run_id: "${{ inputs.run_id }}"
+      work_dir: "${{ fromJson(inputs.payload).work_dir }}"
+      script: "${{ fromJson(inputs.payload).script }}"
+      hugo_bin: "${{ fromJson(inputs.payload).hugo_bin_dest }}"
+      docs_dir: "${{ fromJson(inputs.payload).docs_dir }}"
+      site_dir: "${{ fromJson(inputs.payload).site_dir }}"
+      public_cache: "${{ fromJson(inputs.payload).public_cache }}-hub"

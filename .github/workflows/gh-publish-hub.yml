@@ -1,0 +1,86 @@
+name: "Run: Publish site (hub)"
+
+permissions: {}
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}-gh-publish-hub-${{ github.run_id }}-${{ inputs.run_id }}"
+  cancel-in-progress: false
+
+on:
+  workflow_call:
+    inputs:
+      run_id:
+        description: "Run ID"
+        type: string
+        required: true
+      work_dir:
+        description: "Working directory"
+        type: string
+        default: "/github/workspace"
+      script:
+        description: "Run script"
+        type: string
+        default: "./_actions/src/gh-publish.sh"
+      gh_bin:
+        description: "gh binary (docker)"
+        type: string
+        default: "/go/gh"
+      gh_pages_repo:
+        description: "GH pages repository"
+        type: string
+        required: true
+      gh_pages_branch:
+        description: "GH pages branch"
+        type: string
+        required: true
+      public_dir:
+        description: "Publish directory"
+        type: string
+        required: true
+      public_cache:
+        description: "Publish cache"
+        type: string
+        default: ""
+
+env:
+  RUN_ID: "${{ inputs.run_id }}"
+  WORK_DIR: "${{ inputs.work_dir }}"
+  SCRIPT: "${{ inputs.script }}"
+  GH_BIN: "${{ inputs.gh_bin }}"
+  GH_PAGES_REPO: "${{ inputs.gh_pages_repo }}"
+  GH_PAGES_BRANCH: "${{ inputs.gh_pages_branch }}"
+  PUBLIC_DIR: "${{ inputs.public_dir }}"
+  PUBLIC_CACHE: "${{ inputs.public_cache }}"
+
+jobs:
+  gh-publish:
+    concurrency:
+      group: "gh-publish-hub/gh-publish-${{ inputs.run_id }}"
+      cancel-in-progress: true
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: "Checkout actions"
+        uses: ekotik/sh.wrap@actions
+      - if: ${{ inputs.public_cache != '' }}
+        name: "Retrieve site from cache"
+        uses: actions/download-artifact@v3
+        with:
+          name: "${{ inputs.public_cache }}"
+          path: "${{ inputs.public_dir }}"
+      - name: "Publish site"
+        uses: ./_actions/.github/actions/gh-publish-hub
+        with:
+          work_dir: "${{ inputs.work_dir }}"
+          script: "${{ inputs.script }}"
+          gh_bin: "${{ inputs.gh_bin }}"
+          gh_pages_repo: "${{ inputs.gh_pages_repo }}"
+          gh_pages_branch: "${{ inputs.gh_pages_branch }}"
+          public_dir: "${{ inputs.public_dir }}"
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"

@@ -1,0 +1,30 @@
+name: "Test: Workflows (docker hub)"
+description: "Run workflows tests (docker hub)"
+
+permissions:
+  actions: write
+
+inputs:
+  work_dir:
+    description: "Working directory"
+    default: "/github/workspace"
+  script:
+    description: "Run script"
+    default: "./test/workflow/test-workflows.sh"
+  github_repo:
+    description: "Github repository"
+    required: true
+  data_dirs:
+    description: "Test data directories"
+    required: true
+
+runs:
+  using: docker
+  image: docker://docker.io/antirs/shwrap:git-tasks
+  args:
+    - "${{ inputs.work_dir }}"
+    - "${{ inputs.script }}"
+    - "${{ inputs.github_repo }}"
+    - "${{ inputs.data_dirs }}"
+  env:
+    GH_MODE: 1

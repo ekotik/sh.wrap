@@ -42,3 +42,18 @@ jobs:
       git_repo: "${{ fromJson(inputs.payload).git_repo }}"
       git_branch: "${{ fromJson(inputs.payload).git_branch }}"
       git_commands: "${{ fromJson(inputs.payload).git_commands }}"
+  git-tasks-hub-test:
+    permissions:
+      contents: write
+    concurrency:
+      group: "git-tasks-test/git-tasks-hub-test-${{ inputs.run_id }}"
+      cancel-in-progress: true
+    uses: ekotik/sh.wrap/.github/workflows/git-tasks-hub.yml@actions
+    with:
+      run_id: "${{ fromJson(inputs.payload).run_id }}"
+      work_dir: "${{ fromJson(inputs.payload).work_dir }}"
+      script: "${{ fromJson(inputs.payload).script }}"
+      gh_bin: "${{ fromJson(inputs.payload).gh_bin_dest }}"
+      git_repo: "${{ fromJson(inputs.payload).git_repo }}"
+      git_branch: "${{ fromJson(inputs.payload).git_branch }}"
+      git_commands: "${{ fromJson(inputs.payload).git_commands }}"

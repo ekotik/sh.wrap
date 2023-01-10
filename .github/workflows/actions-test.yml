@@ -54,3 +54,23 @@ jobs:
       public_cache: "${{ fromJson(inputs.payload).public_cache }}"
       gh_pages_repo: "${{ fromJson(inputs.payload).gh_pages_repo }}"
       gh_pages_branch: "${{ fromJson(inputs.payload).gh_pages_branch }}"
+  actions-test-hub:
+    permissions:
+      contents: write
+    concurrency:
+      group: "actions-test/actions-hub-test-${{ inputs.run_id }}"
+      cancel-in-progress: true
+    uses: ekotik/sh.wrap/.github/workflows/actions-hub.yml@actions
+    with:
+      run_id: "${{ inputs.run_id }}"
+      work_dir: "${{ fromJson(inputs.payload).work_dir }}"
+      script_hugo_site: "${{ fromJson(inputs.payload).script_hugo_site }}"
+      script_gh_publish: "${{ fromJson(inputs.payload).script_gh_publish }}"
+      gh_bin: "${{ fromJson(inputs.payload).gh_bin_dest }}"
+      hugo_bin: "${{ fromJson(inputs.payload).hugo_bin_dest }}"
+      docs_dir: "${{ fromJson(inputs.payload).docs_dir }}"
+      site_dir: "${{ fromJson(inputs.payload).site_dir }}"
+      public_dir: "${{ fromJson(inputs.payload).public_dir }}"
+      public_cache: "${{ fromJson(inputs.payload).public_cache }}-hub"
+      gh_pages_repo: "${{ fromJson(inputs.payload).gh_pages_repo }}"
+      gh_pages_branch: "${{ fromJson(inputs.payload).gh_pages_branch }}"
