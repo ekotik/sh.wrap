@@ -18,11 +18,23 @@ on:
       - ".github/workflows/test.yml"
 
 jobs:
-  test:
+  test-shellcheck:
     concurrency:
-      group: "test-${{ github.ref }}"
+      group: "test/test-shellcheck-${{ github.ref }}"
       cancel-in-progress: true
     uses: ekotik/sh.wrap/.github/workflows/test-shellcheck.yml@actions
     with:
       run_id: "test-shellcheck-test-${{ github.ref }}"
       dirs: "./src\n./test"
+  test-runner:
+    strategy:
+      matrix:
+        bash_version: ["5.2", "5.0"]
+    concurrency:
+      group: "test/test-runner-${{ matrix.bash_version }}-${{ github.ref }}"
+      cancel-in-progress: false
+    uses: ekotik/sh.wrap/.github/workflows/test-runner.yml@actions
+    with:
+      run_id: "test-shellcheck-test-${{ matrix.bash_version }}-${{ github.ref }}"
+      bash_docker_version: "${{ matrix.bash_version }}"
+      microspec_args: "./test/*.spec.sh"
