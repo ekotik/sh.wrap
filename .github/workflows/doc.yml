@@ -27,11 +27,15 @@ jobs:
     concurrency:
       group: "doc-${{ inputs.run_id }}"
       cancel-in-progress: true
-    uses: ekotik/sh.wrap/.github/workflows/actions.yml@v0.0.0-actions
+    uses: ekotik/sh.wrap/.github/workflows/actions-hub.yml@actions
     with:
       run_id: "doc/actions"
       script_hugo_site: "./_actions/src/docsy-site.sh"
-      hugo_build_args: "--tags\\nextended"
+      in_dir: "./src"
+      out_cache: "devdoc-${{ github.run_id }}"
+      devdocs_repo: "https://github.com/ekotik/sh.wrap"
+      devdocs_branch: "devdocs"
+      devdocs_tag: "v0.0.1-devdocs"
       docs_dir: "./doc/content"
       site_dir: "./doc"
       public_dir: "./public"
