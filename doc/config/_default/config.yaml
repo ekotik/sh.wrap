@@ -44,6 +44,11 @@ module:
       mounts:
         - source: "./doc/actions/"
           target: "content/docs/dev/actions/"
+    - path: "github.com/ekotik/sh.wrap/doc/devdocs"
+      disabled: false
+      mounts:
+        - source: "./"
+          target: "content/docs/dev/docs/"
     - path: "github.com/ekotik/sh.wrap/doc/project"
       disabled: false
       mounts:
