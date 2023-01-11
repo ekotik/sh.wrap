@@ -12,7 +12,7 @@ aliases:
   - /actions/docker/docker.md
   - /actions/docker/docker.org
 url: /actions/docker/docker.html
-tags: ["actions", "devdocs", "docker"]
+tags: ["actions", "development", "docker"]
 ---
 #+end_export
 
@@ -104,7 +104,7 @@ Common paths and variables.
 export DOCKERFILES_PATH=$(realpath "../../../docker")
 export DOCKERFILE_SCRIPTS_PATH="../../../src"
 export DOCKER_PATH=$(realpath "../../..")
-export DOCKER_REPO="antirs"
+export DOCKER_REPO="ekotik"
 export SOURCE_PATH="../../.."
 #+end_src
 
@@ -290,7 +290,7 @@ bash "${script}" "$@"
 <<options-debug>>
 #+end_src
 
-#+begin_src bash
+#+begin_src bash :eval no
 <<help>>
 
 <<live-or-die-trap>>
@@ -382,7 +382,9 @@ for data_dir in "${data_dirs[@]}"; do
 		data_templates+=("${data_template}")
 	done < <(find "${data_dir}" -name '*.json' -print0)
 done
+#+end_src
 
+#+begin_src bash
 for data_template in "${data_templates[@]}"; do
 	data_path="${data_template%.json}"
 	while IFS=$'\0' read -d $'\0' -r datafile; do
@@ -490,7 +492,7 @@ LIVE_DEBUG=1
 Help.
 #+begin_src bash
 help-test() {
-	printf "Usage: %s: <SRCDIR...>" "$0"
+	printf "Usage: %s: <DIRS...>" "$0"
 	help echo "$@"
 }
 
@@ -562,6 +564,7 @@ echo '::notice::Shellcheck action ended!' | gh_echo
 #+end_src
 
 #+begin_src bash :eval no
+#shellcheck disable=SC2086
 exit $ret
 #+end_src
 
@@ -650,7 +653,7 @@ docker run -it --rm --name shwrap-test \
 #!/bin/bash
 # shellcheck disable=SC2034
 
-export WORKFLOW_ID="38942438"
+export WORKFLOW_ID="44983464"
 export REF="actions"
 export RUN_ID="test-shellcheck/01/01"
 export DOCKERFILE_TEMPLATE="./_actions/docker/test-shellcheck.Dockerfile"
@@ -765,7 +768,7 @@ LIVE_DEBUG=1
 Help.
 #+begin_src bash
 help-go-build() {
-	printf "Usage: %s: <GITPATH> <GITREPO> <GITHASH> [BUILDARGS...]\n" "$0"
+	printf "Usage: %s: <GIT_PATH> <GIT_REPO> <GIT_HASH> [BUILD_ARGS...]\n" "$0"
 	help "$@"
 }
 
@@ -1223,7 +1226,7 @@ out_dir="${SOURCE_PATH}"/.doc-out
 clean=1
 #+end_src
 
-**** Hugo
+**** Convert documentation
 
 #+begin_src bash :eval query
 env -i LIVE_DEBUG=1 \
@@ -1315,9 +1318,270 @@ env -i GITHUB_TOKEN="${gh_token}" \
     bash "${SOURCE_PATH}"/test/workflow/test-workflows.sh "${GITHUB_REPO}" "${SOURCE_PATH}"/test/workflow/data/pandoc-convert
 #+end_src
 
+* Docker image for documentation generation
+  :PROPERTIES:
+  :header-args: :results output verbatim silent wrap
+  :header-args+: :noweb no-export
+  :header-args+: :comments none
+  :header-args+: :exports code
+  :header-args+: :eval never-export
+  :header-args:bash: :session *dockerfile-generate-docs*
+  :END:
+
+#+call: tangle-dockerfiles()
+
+** Build docker image
+
+#+begin_src bash
+<<common-variables>>
+#+end_src
+
+#+name: dockerfile-generate-docs
+#+begin_src bash
+DOCKERFILE_TEMPLATE="${DOCKERFILES_PATH}"/generate-docs.Dockerfile
+DOCKER_IMAGE="shwrap:generate-docs"
+DOCKER_PATH="${DOCKER_PATH}"
+DOCKERFILE="${DOCKER_PATH}"/generate-docs.Dockerfile
+#+end_src
+
+#+begin_src dockerfile :tangle ../../../docker/generate-docs.Dockerfile :eval no
+FROM ubuntu:latest as build
+
+COPY "${DOCKERFILE_SCRIPTS_PATH}"/entrypoint.sh /entrypoint.sh
+
+ENTRYPOINT ["bash", "/entrypoint.sh"]
+CMD ["${WORK_DIR}", "${SCRIPT}", "${ARGS}"]
+#+end_src
+
+#+begin_src bash
+env -i \
+	DOCKERFILE_SCRIPTS_PATH="${DOCKERFILE_SCRIPTS_PATH}" \
+	bash "${DOCKERFILE_SCRIPTS_PATH}"/dockerfile.sh "${DOCKERFILE_TEMPLATE}" "${DOCKERFILE}"
+#+end_src
+
+#+begin_src bash :results code
+docker build -t "${DOCKER_IMAGE}" -f "${DOCKERFILE}" "${DOCKER_PATH}" --no-cache
+docker tag "${DOCKER_IMAGE}" "${DOCKER_REPO}"/"${DOCKER_IMAGE}"
+#+end_src
+
+Push to Docker Hub (optionally).
+
+#+begin_src bash :eval query
+docker push "${DOCKER_REPO}"/"${DOCKER_IMAGE}"
+#+end_src
+
+** Generate documentation
+   :PROPERTIES:
+   :header-args:bash: :session *generate-docs*
+   :header-args:bash+: :tangle ../../../src/generate-docs.sh
+   :END:
+
+#+begin_src bash :tangle no
+<<common-variables>>
+#+end_src
+
+#+begin_src bash :eval no
+<<preamble>>
+
+<<options>>
+
+<<options-debug>>
+#+end_src
+
+#+begin_src bash
+<<help>>
+
+<<live-or-die-trap>>
+
+<<gh-mode>>
+#+end_src
+
+Parameters.
+#+begin_src bash :tangle no
+shift $#
+set -- "${SOURCE_PATH}"/src "${SOURCE_PATH}"/.devdocs-out
+#+end_src
+
+Help and parameters check.
+#+begin_src bash
+help-generate-docs() {
+	printf "Usage: %s: <IN_DIR> <OUT_DIR>\n" "$0"
+	help "$@"
+}
+
+# check source directory
+if [[ $# -eq 0 ]]; then
+	echo >&2 "No source directory specified"
+	help-generate-docs "$@"
+fi
+# check destination directory
+if [[ $# -eq 1 ]]; then
+	echo >&2 "No destination directory specified"
+	help-generate-docs "$@"
+fi
+#+end_src
+
+#+begin_src bash
+in_dir=$(realpath "$1")
+out_dir=$(realpath -m "$2")
+#+end_src
+
+Generate function.
+#+name: org-to-md
+#+begin_src bash
+function generate_docs()
+{
+	local file="$1"
+	grep -rl "^[[:space:]]*##" "${file}" |
+		sort --version-sort |
+		xargs -n1 grep -h "^[[:space:]]*##" |
+		sed 's/^[[:space:]]*//' |
+		sed 's/^##[[:space:]]\?//'
+}
+#+end_src
+
+#+begin_src bash
+# greetings for github runner
+echo '::notice::Documentation generation action started!' | gh_echo
+#+end_src
+
+Conversion.
+#+begin_src bash
+# generate documentation
+echo '::group::Generate docs' | gh_echo
+LAST_ERROR="generation failed"
+while IFS= read -d $'\0' -r path; do
+	dir=$(dirname "$(realpath -m -s "${path}" --relative-base "${in_dir}")")
+	file=$(basename "${path}")
+
+	mkdir -p "${out_dir}"/"${dir}" || true 2> /dev/null
+	generate_docs "${in_dir}"/"${dir}"/"${file}" > \
+				  "${out_dir}"/"${dir}"/"${file}.md" || $live_or_die
+done < <(find "${in_dir}" -name '*.sh' -print0)
+echo '::endgroup::' | gh_echo
+#+end_src
+
+#+begin_src bash
+# goodbye
+echo '::notice::Documentation generation action ended!' | gh_echo
+#+end_src
+
+Exit.
+#+begin_src bash :eval no
+exit 0
+#+end_src
+
+** Run
+
+#+begin_src bash
+<<common-variables>>
+<<dockerfile-generate-docs>>
+#+end_src
+
+Authentication token for github.
+#+begin_src bash :tangle no
+read -s -p 'Enter token: ' gh_token
+#+end_src
+
+*** Run script
+
+#+begin_src bash
+in_dir="${SOURCE_PATH}"/src
+out_dir="${SOURCE_PATH}"/.devdocs-out
+#+end_src
+
+**** Generate documentation
+
+#+begin_src bash :eval query
+env -i LIVE_DEBUG=1 \
+	bash "${DOCKERFILE_SCRIPTS_PATH}"/generate-docs.sh "${in_dir}" "${out_dir}"
+#+end_src
+
+#+begin_src bash :eval query
+env -i LIVE_DEBUG=1 LIVE_OR_DIE=live GH_MODE=1 \
+	bash "${DOCKERFILE_SCRIPTS_PATH}"/generate-docs.sh "${in_dir}" "${out_dir}"
+#+end_src
+
+*** Run docker
+
+#+begin_src bash
+work_dir="/github/workspace"
+script="${work_dir}"/src/generate-docs.sh
+in_dir="${work_dir}"/src
+out_dir="${work_dir}"/.devdocs-out
+#+end_src
+
+#+begin_src bash :eval query
+docker run -it --rm --name shwrap-generate-docs \
+	   --volume "${DOCKER_PATH}":"${work_dir}" \
+	   -eLIVE_DEBUG=1 \
+	   "${DOCKER_REPO}"/"${DOCKER_IMAGE}" \
+	   "${work_dir}" "${script}" "${in_dir}" "${out_dir}"
+#+end_src
+
+#+begin_src bash :eval query
+docker run -it --rm --name shwrap-generate-docs \
+	   --volume "${DOCKER_PATH}":"${work_dir}" \
+	   -eLIVE_DEBUG=1 -eLIVE_OR_DIE=live -eGH_MODE=1 \
+	   "${DOCKER_REPO}"/"${DOCKER_IMAGE}" \
+	   "${work_dir}" "${script}" "${in_dir}" "${out_dir}"
+#+end_src
+
+*** Run action
+
+**** Template
+
+#+begin_src json :tangle ../../../test/workflow/data/generate-docs/01.json
+{
+  "ref": "${REF}",
+  "inputs":
+  {
+    "run_id": "${RUN_ID}",
+    "payload":
+    {
+      "dockerfile_template": "${DOCKERFILE_TEMPLATE}",
+      "dockerfile": "${DOCKERFILE}",
+      "work_dir": "${WORK_DIR}",
+      "script": "${SCRIPT}",
+      "in_dir": "${IN_DIR}",
+      "out_dir": "${OUT_DIR}",
+      "out_cache": "${OUT_CACHE}",
+      "out_cache_dir": "${OUT_CACHE_DIR}"
+    }
+  }
+}
+#+end_src
+
+**** Data
+
+#+begin_src bash :tangle ../../../test/workflow/data/generate-docs/01/01.sh
+#!/bin/bash
+# shellcheck disable=SC2034
+
+export WORKFLOW_ID="39688674"
+export REF="actions"
+export RUN_ID="generate-docs/01/01"
+export DOCKERFILE_TEMPLATE="./_actions/docker/generate-docs.Dockerfile"
+export DOCKERFILE="generate-docs.Dockerfile"
+export WORK_DIR="/github/workspace"
+export SCRIPT="./_actions/src/generate-docs.sh"
+export IN_DIR="./src"
+export OUT_DIR="./.devdoc-out"
+export OUT_CACHE="generate-docs-01-01"
+export OUT_CACHE_DIR="./.devdoc-out"
+#+end_src
+
+**** Test
+
+#+begin_src bash
+GITHUB_REPO="ekotik/sh.wrap"
+env -i GITHUB_TOKEN="${gh_token}" \
+	bash "${SOURCE_PATH}"/test/workflow/test-workflows.sh "${GITHUB_REPO}" "${SOURCE_PATH}"/test/workflow/data/pandoc-convert
+#+end_src
 
 
-* Docker image for documentation site generation
+
+* Docker image for documentation site
   :PROPERTIES:
   :header-args: :results output verbatim silent wrap
   :header-args+: :noweb no-export
@@ -1608,7 +1872,7 @@ public_dir="${site_dir}"/public
 
 #+begin_src bash :eval query
 env -i LIVE_DEBUG=1 \
-    bash "${DOCKERFILE_SCRIPTS_PATH}"/hugo-site.sh "${hugo_bin}" "${docs_dir}" "${site_dir}" "${public_dir}"
+	bash "${DOCKERFILE_SCRIPTS_PATH}"/hugo-site.sh "${hugo_bin}" "${docs_dir}" "${site_dir}" "${public_dir}"
 #+end_src
 
 #+begin_src bash :eval query
@@ -2086,9 +2350,9 @@ echo '::notice::GH publish action ended!' | gh_echo
 #+end_src
 
 ** Git submodules update
-  :PROPERTIES:
-  :header-args:bash+: :tangle ../../../src/update-submodules.sh
-  :END:
+   :PROPERTIES:
+   :header-args:bash+: :tangle ../../../src/update-submodules.sh
+   :END:
 
 #+begin_src bash :tangle no
 <<common-variables>>
@@ -2442,7 +2706,7 @@ docker run -it --rm --name shwrap-gh-publish \
 #!/bin/bash
 # shellcheck disable=SC2034
 
-export WORKFLOW_ID="38942442"
+export WORKFLOW_ID="37482756"
 export REF="actions"
 export RUN_ID="gh-publish/01/01"
 export DOCKERFILE_TEMPLATE="./_actions/docker/git-tasks.Dockerfile"
@@ -2585,4 +2849,274 @@ export GIT_AMEND="yes"
 GITHUB_REPO="ekotik/sh.wrap"
 env -i GITHUB_TOKEN="${gh_token}" \
     bash "${SOURCE_PATH}"/test/workflow/test-workflows.sh "${GITHUB_REPO}" "${SOURCE_PATH}"/test/workflow/data/update-submodules
+#+end_src
+
+* Docker image for testing
+  :PROPERTIES:
+  :header-args: :results output verbatim silent wrap
+  :header-args+: :noweb no-export
+  :header-args+: :comments none
+  :header-args+: :exports code
+  :header-args+: :eval never-export
+  :header-args:bash: :session *dockerfile-test-runner*
+  :END:
+
+#+call: tangle-dockerfiles()
+
+** Build docker image
+
+#+begin_src bash
+<<common-variables>>
+#+end_src
+
+#+name: dockerfile-test-runner
+#+begin_src bash
+DOCKERFILE_TEMPLATE="${DOCKERFILES_PATH}"/test-runner.Dockerfile
+DOCKER_IMAGE="test-runner:5.2"
+DOCKER_PATH="${DOCKER_PATH}"
+DOCKERFILE="${DOCKER_PATH}"/test-runner.Dockerfile
+#+end_src
+
+#+begin_src dockerfile :tangle ../../../docker/test-runner.Dockerfile :eval no
+FROM bash:${BASH_DOCKER_VERSION} as build
+
+RUN mkdir /te
+COPY "${MICROSPEC_SOURCE}" "${MICROSPEC_DEST}"
+
+FROM build as test-runner
+
+COPY "${DOCKERFILE_SCRIPTS_PATH}"/entrypoint.sh /entrypoint.sh
+
+ENTRYPOINT ["bash", "/entrypoint.sh"]
+CMD ["${WORK_DIR}", "${SCRIPT}", "${MICROSPEC_PATH}", "${MICROSPEC_EXEC}", "${MICROSPEC_ARGS}"]
+#+end_src
+
+#+begin_src bash
+env -i \
+    DOCKERFILE_SCRIPTS_PATH="${DOCKERFILE_SCRIPTS_PATH}" \
+	BASH_DOCKER_VERSION="5.2" \
+	MICROSPEC_SOURCE="./test/microspec" \
+    MICROSPEC_DEST="/te/microspec" \
+    bash "${DOCKERFILE_SCRIPTS_PATH}"/dockerfile.sh "${DOCKERFILE_TEMPLATE}" "${DOCKERFILE}"
+#+end_src
+
+#+begin_src bash :results code
+docker build -t "${DOCKER_IMAGE}" -f "${DOCKERFILE}" "${DOCKER_PATH}" --no-cache
+docker tag "${DOCKER_IMAGE}" "${DOCKER_REPO}"/"${DOCKER_IMAGE}"
+#+end_src
+
+Push to Docker Hub (optionally).
+
+#+begin_src bash :eval query
+docker push "${DOCKER_REPO}"/"${DOCKER_IMAGE}"
+#+end_src
+
+** Run tests
+   :PROPERTIES:
+   :header-args:bash+: :tangle ../../../src/test-runner.sh
+   :END:
+
+#+begin_src bash :tangle no
+<<common-variables>>
+#+end_src
+
+#+begin_src bash :tangle no
+LIVE_OR_DIE=live
+LIVE_DEBUG=1
+#+end_src
+
+#+begin_src bash :eval no
+<<preamble>>
+
+<<options>>
+
+<<options-debug>>
+#+end_src
+
+#+begin_src bash
+<<help>>
+
+<<live-or-die-trap>>
+
+<<gh-mode>>
+#+end_src
+
+Help.
+#+begin_src bash
+help-test-runner() {
+	printf "Usage: %s: <MICROSPEC_PATH> <MICROSPEC_EXEC> [MICROSPEC_ARGS...]\n" "$0"
+	help "$@"
+}
+
+echo '::notice::Test runner action started!' | gh_echo
+#+end_src
+
+Set up parameters.
+#+begin_src bash :tangle no
+shift $#
+set -- "${SOURCE_PATH}"/test/microspec "microspec" "${SOURCE_PATH}/test/microspec/example.spec.sh"
+#+end_src
+
+Check parameters.
+#+begin_src bash
+# check parameters
+if [[ $# -eq 0 ]]; then
+	echo >&2 "No microspec path specified"
+	help-test-runner "$@"
+fi
+
+if [[ $# -eq 1 ]]; then
+	echo >&2 "No microspec executable specified"
+	help-test-runner "$@"
+fi
+
+microspec_path=$(realpath "$1")
+microspec_exec="$2"
+shift 2
+microspec="${microspec_path}"/"${microspec_exec}"
+# shellcheck disable=SC2206
+# intentional use of word splitting
+microspec_args="$*"
+#+end_src
+
+#+begin_src bash
+# check paths
+LAST_ERROR="microspec executable not found"
+[[ -f "${microspec}" ]] || $live_or_die
+#+end_src
+
+#+begin_src bash
+echo '::group::Run tests | gh_echo'
+#+end_src
+
+Run tests.
+#+begin_src bash
+# run tests
+LAST_ERROR="test running failed"
+env -i bash -c "${microspec} ${microspec_args}" || $live_or_die
+#+end_src
+
+#+begin_src bash
+echo '::endgroup::' | gh_echo
+#+end_src
+
+#+begin_src bash
+echo '::notice::Test runner action ended!' | gh_echo
+#+end_src
+
+Exit.
+#+begin_src bash :eval no
+exit 0
+#+end_src
+
+** Run
+
+#+begin_src bash
+<<common-variables>>
+<<dockerfile-test-runner>>
+#+end_src
+
+Authentication token for github.
+#+begin_src bash :tangle no
+read -s -p 'Enter token: ' gh_token
+#+end_src
+
+*** Run git tasks
+
+**** Run script
+
+#+begin_src bash
+microspec_path="${SOURCE_PATH}"/test/microspec
+microspec_exec="microspec"
+microspec_args="${SOURCE_PATH}/test/microspec/example.spec.sh"
+#+end_src
+
+#+begin_src bash :eval query
+env -i LIVE_DEBUG=1 \
+    bash "${DOCKERFILE_SCRIPTS_PATH}"/test-runner.sh "${microspec_path}" "${microspec_exec}" "${microspec_args}"
+#+end_src
+
+#+begin_src bash :eval query
+env LIVE_DEBUG=1 LIVE_OR_DIE=live GH_MODE=1 \
+	bash "${DOCKERFILE_SCRIPTS_PATH}"/test-runner.sh "${microspec_path}" "${microspec_exec}" "${microspec_args}"
+#+end_src
+
+**** Run docker
+
+#+begin_src bash
+work_dir="/github/workspace"
+script="${work_dir}"/src/test-runner.sh
+microspec_path="${work_dir}"/test/microspec
+microspec_exec="microtap"
+microspec_args="${work_dir}/test/microspec/example.spec.sh"
+#+end_src
+
+#+begin_src bash :eval query
+docker run -it --rm --name shwrap-git-tasks \
+       --volume "${DOCKER_PATH}":"${work_dir}" \
+       -eLIVE_DEBUG=1 \
+       "${DOCKER_REPO}"/"${DOCKER_IMAGE}" \
+       "${work_dir}" "${script}" "${microspec_path}" "${microspec_exec}" "${microspec_args}"
+#+end_src
+
+#+begin_src bash :eval query
+docker run -it --rm --name shwrap-git-tasks \
+       --volume "${DOCKER_PATH}":"${work_dir}" \
+       -eLIVE_DEBUG=1 -eLIVE_OR_DIE=live -eGH_MODE=1 \
+       "${DOCKER_REPO}"/"${DOCKER_IMAGE}" \
+       "${work_dir}" "${script}" "${microspec_path}" "${microspec_exec}" "${microspec_args}"
+#+end_src
+
+**** Run action
+
+***** Template
+
+#+begin_src json :tangle ../../../test/workflow/data/test-runner/01.json
+{
+  "ref": "${REF}",
+  "inputs":
+  {
+    "run_id": "${RUN_ID}",
+    "payload":
+    {
+      "dockerfile_template": "${DOCKERFILE_TEMPLATE}",
+      "dockerfile": "${DOCKERFILE}",
+      "work_dir": "${WORK_DIR}",
+      "script": "${SCRIPT}",
+      "bash_docker_version": "${BASH_DOCKER_VERSION}",
+      "microspec_source": "${MICROSPEC_SOURCE}",
+      "microspec_dest": "${MICROSPEC_DEST}",
+      "microspec_exec": "${MICROSPEC_EXEC}",
+      "microspec_args": "${MICROSPEC_ARGS}"
+    }
+  }
+}
+#+end_src
+
+***** Data
+
+#+begin_src bash :tangle ../../../test/workflow/data/test-runner/01/01.sh
+#!/bin/bash
+# shellcheck disable=SC2034
+
+export WORKFLOW_ID="45055402"
+export REF="actions"
+export RUN_ID="test-runner/01/01"
+export DOCKERFILE_TEMPLATE="./_actions/docker/test-runner.Dockerfile"
+export DOCKERFILE="test-runner.Dockerfile"
+export WORK_DIR="/github/workspace/_actions"
+export SCRIPT="./src/test-runner.sh"
+export BASH_DOCKER_VERSION="5.2"
+export MICROSPEC_SOURCE="./test/microspec"
+export MICROSPEC_DEST="/te/microspec"
+export MICROSPEC_EXEC="microspec"
+export MICROSPEC_ARGS=""
+#+end_src
+
+***** Test
+
+#+begin_src bash
+GITHUB_REPO="ekotik/sh.wrap"
+env -i GITHUB_TOKEN="${gh_token}" \
+    bash "${SOURCE_PATH}"/test/workflow/test-workflows.sh "${GITHUB_REPO}" "${SOURCE_PATH}"/test/workflow/data/test-runner
 #+end_src

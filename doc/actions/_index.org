@@ -10,7 +10,7 @@ title: GH actions
 date: 2022-10-27
 weight: 1
 url: /actions/
-tags: ["actions", "devdocs"]
+tags: ["actions", "development"]
 ---
 #+end_export
 
@@ -18,4 +18,4 @@ tags: ["actions", "devdocs"]
 
 GH actions for sh.wrap project are designed as [[file:./docker/docker.org][docker images with shell scripts]].
 
-Scripts could be run locally, in docker, or as GH action.
+Scripts could be run locally, in docker, or as GH actions.
