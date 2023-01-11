@@ -1,0 +1,85 @@
+name: "Run: Generate documentation"
+
+permissions: {}
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}-generate-docs-${{ github.run_id }}"
+  cancel-in-progress: true
+
+on:
+  workflow_call:
+    inputs:
+      run_id:
+        description: "Run ID"
+        type: string
+        required: true
+      dockerfile_template:
+        description: "Dockerfile template file"
+        type: string
+        default: "./_actions/docker/generate-docs.Dockerfile"
+      dockerfile:
+        description: "Dockerfile to build and run"
+        type: string
+        default: "generate-docs.Dockerfile"
+      work_dir:
+        description: "Working directory"
+        type: string
+        default: "/github/workspace"
+      script:
+        description: "Run script"
+        type: string
+        default: "./_actions/src/generate-docs.sh"
+      in_dir:
+        description: "Source directory"
+        type: string
+        default: "./src"
+      out_dir:
+        description: "Destination directory"
+        type: string
+        default: "./.devdoc-out"
+      out_cache:
+        description: "Documentation cache"
+        type: string
+        default: "outcache"
+      out_cache_dir:
+        description: "Documentation cache directory"
+        type: string
+        default: "./.doc-out"
+
+env:
+  DOCKERFILE_SCRIPTS_PATH: "./_actions/src"
+  RUN_ID: "${{ inputs.run_id }}"
+  DOCKERFILE_TEMPLATE: "${{ inputs.dockerfile_template }}"
+  DOCKERFILE: "${{ inputs.dockerfile }}"
+  WORK_DIR: "${{ inputs.work_dir }}"
+  SCRIPT: "${{ inputs.script }}"
+  IN_DIR: "${{ inputs.in_dir }}"
+  OUT_DIR: "${{ inputs.out_dir }}"
+  OUT_CACHE: "${{ inputs.out_cache }}"
+  OUT_CACHE_DIR: "${{ inputs.out_cache_dir }}"
+
+jobs:
+  generate-docs:
+    concurrency:
+      group: "generate-docs/generate-docs-${{ inputs.run_id }}"
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: "Checkout actions"
+        uses: ekotik/sh.wrap@actions
+      - uses: ./_actions/.github/actions/prepare-dockerfile
+      - name: "Generate documentation"
+        uses: ./_actions/.github/actions/generate-docs
+        with:
+          script: "${{ inputs.script }}"
+          in_dir: "${{ inputs.in_dir }}"
+          out_dir: "${{ inputs.out_dir }}"
+      - name: "Archive documentation"
+        uses: actions/upload-artifact@v3
+        with:
+          name: "${{ inputs.out_cache }}"
+          path: "${{ inputs.out_cache_dir }}"

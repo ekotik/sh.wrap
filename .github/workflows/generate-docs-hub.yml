@@ -1,0 +1,73 @@
+name: "Run: Generate documentation (hub)"
+
+permissions: {}
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}-generate-docs-hub-${{ github.run_id }}"
+  cancel-in-progress: true
+
+on:
+  workflow_call:
+    inputs:
+      run_id:
+        description: "Run ID"
+        type: string
+        required: true
+      work_dir:
+        description: "Working directory"
+        type: string
+        default: "/github/workspace"
+      script:
+        description: "Run script"
+        type: string
+        default: "./_actions/src/generate-docs.sh"
+      in_dir:
+        description: "Source directory"
+        type: string
+        default: "./src"
+      out_dir:
+        description: "Destination directory"
+        type: string
+        default: "./.devdoc-out"
+      out_cache:
+        description: "Documentation cache"
+        type: string
+        default: "outcache"
+      out_cache_dir:
+        description: "Documentation cache directory"
+        type: string
+        default: "./.doc-out"
+
+env:
+  RUN_ID: "${{ inputs.run_id }}"
+  WORK_DIR: "${{ inputs.work_dir }}"
+  SCRIPT: "${{ inputs.script }}"
+  IN_DIR: "${{ inputs.in_dir }}"
+  OUT_DIR: "${{ inputs.out_dir }}"
+  OUT_CACHE: "${{ inputs.out_cache }}"
+  OUT_CACHE_DIR: "${{ inputs.out_cache_dir }}"
+
+jobs:
+  generate-docs:
+    concurrency:
+      group: "generate-docs-hub/generate-docs-${{ inputs.run_id }}"
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: "Checkout actions"
+        uses: ekotik/sh.wrap@actions
+      - name: "Generate documentation"
+        uses: ./_actions/.github/actions/generate-docs-hub
+        with:
+          script: "${{ inputs.script }}"
+          in_dir: "${{ inputs.in_dir }}"
+          out_dir: "${{ inputs.out_dir }}"
+      - name: "Archive documentation"
+        uses: actions/upload-artifact@v3
+        with:
+          name: "${{ inputs.out_cache }}"
+          path: "${{ inputs.out_cache_dir }}"
