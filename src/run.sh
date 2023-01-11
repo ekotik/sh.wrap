@@ -119,13 +119,13 @@ function __shwrap__run()
 function __shwrap_cache()
 {
 	local __shwrap_module_path="$1"
-	local scope="$2"
+	local __shwrap_scope="$2"
 
 	local __shwrap_ret=1
 	local command __shwrap_module_hash
 	local fd_scope fd_scope_cap fd_out fd_out_cap
 	__shwrap_module_hash="${_shwrap_modules_hashes[${__shwrap_module_path}]}"
-	__shwrap_log "__shwrap_cache: cache '${__shwrap_module_path}' '${scope}'" >&2
+	__shwrap_log "__shwrap_cache: cache '${__shwrap_module_path}' '${__shwrap_scope}'" >&2
 	fd_scope=$(__shwrap_get_fd "${SHWRAP_FD_RANGE[@]}")
 	eval "exec ${fd_scope}< /dev/null"
 	_shwrap_fds["${fd_scope}"]="${fd_scope}"
@@ -152,7 +152,7 @@ function __shwrap_cache()
 		source '"${__shwrap_module_path}"'
 		declare __shwrap_ret=$?
 		_shwrap_modules+=(['"${__shwrap_module_hash}"']=$(declare -f))
-		_shwrap_scope+=(['"${scope}"']=$(__shwrap_scope))
+		_shwrap_scope+=(['"${__shwrap_scope}"']=$(__shwrap_scope))
 		{
 			declare -p _shwrap_modules;
 			declare -p _shwrap_modules_deps;
