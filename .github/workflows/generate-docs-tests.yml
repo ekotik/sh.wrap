@@ -1,0 +1,50 @@
+name: "Test: Generate documentation (workflow)"
+run-name: "Test: Generate documentation - ${{ inputs.run_id }}"
+
+permissions: {}
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}-generate-docs-test-${{ github.run_id }}"
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "Run ID"
+        type: string
+        required: true
+      payload:
+        description: "Inputs payload"
+        type: string
+        required: true
+
+jobs:
+  generate-docs-test:
+    concurrency:
+      group: "generate-docs-test-${{ inputs.run_id }}"
+      cancel-in-progress: true
+    uses: ekotik/sh.wrap/.github/workflows/generate-docs.yml@actions
+    with:
+      run_id: "${{ inputs.run_id }}"
+      dockerfile_template: "${{ fromJson(inputs.payload).dockerfile_template }}"
+      dockerfile: "${{ fromJson(inputs.payload).dockerfile }}"
+      work_dir: "${{ fromJson(inputs.payload).work_dir }}"
+      script: "${{ fromJson(inputs.payload).script }}"
+      in_dir: "${{ fromJson(inputs.payload).in_dir }}"
+      out_dir: "${{ fromJson(inputs.payload).out_dir }}"
+      out_cache: "${{ fromJson(inputs.payload).out_cache }}"
+      out_cache_dir: "${{ fromJson(inputs.payload).out_cache_dir }}"
+  generate-docs-hub-test:
+    concurrency:
+      group: "generate-docs-test/generate-docs-hub-test-${{ inputs.run_id }}"
+      cancel-in-progress: true
+    uses: ekotik/sh.wrap/.github/workflows/generate-docs-hub.yml@actions
+    with:
+      run_id: "${{ inputs.run_id }}"
+      work_dir: "${{ fromJson(inputs.payload).work_dir }}"
+      script: "${{ fromJson(inputs.payload).script }}"
+      in_dir: "${{ fromJson(inputs.payload).in_dir }}"
+      out_dir: "${{ fromJson(inputs.payload).out_dir }}"
+      out_cache: "${{ fromJson(inputs.payload).out_cache }}-hub"
+      out_cache_dir: "${{ fromJson(inputs.payload).out_cache_dir }}"
