@@ -67,15 +67,25 @@ cascade:
       kind: "*"
       path: "/docs/**"
   - type: "docs"
-    tags: ["wiki"]
+    tags: ["development"]
     _target:
       kind: "*"
-      path: "/wiki/**"
+      path: "/docs/dev/**"
+  - type: "docs"
+    tags: ["devdocs"]
+    _target:
+      kind: "*"
+      path: "/docs/dev/docs/**"
   - type: "docs"
     tags: ["project"]
     _target:
       kind: "*"
       path: "/docs/project/**"
+  - type: "docs"
+    tags: ["wiki"]
+    _target:
+      kind: "*"
+      path: "/wiki/**"
 
 params:
   copyright: sh.wrap
