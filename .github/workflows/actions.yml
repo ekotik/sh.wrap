@@ -13,6 +13,22 @@ on:
         description: "Run ID"
         type: string
         required: true
+      dockerfile_template_generate_docs:
+        description: "Dockerfile template file (generate-docs)"
+        type: string
+        default: "./_actions/docker/generate-docs.Dockerfile"
+      dockerfile_generate_docs:
+        description: "Dockerfile to build and run (generate-docs)"
+        type: string
+        default: "generate-docs.Dockerfile"
+      dockerfile_template_git_tasks:
+        description: "Dockerfile template file (git-tasks)"
+        type: string
+        default: "./_actions/docker/git-tasks.Dockerfile"
+      dockerfile_git_tasks:
+        description: "Dockerfile to build and run (git-tasks)"
+        type: string
+        default: "git-tasks.Dockerfile"
       dockerfile_template_hugo_site:
         description: "Dockerfile template file (hugo-site)"
         type: string
@@ -33,6 +49,14 @@ on:
         description: "Working directory"
         type: string
         default: "/github/workspace"
+      script_generate_docs:
+        description: "Run script (generate-docs)"
+        type: string
+        default: "./_actions/src/generate-docs.sh"
+      script_git_tasks:
+        description: "Run script (git-tasks)"
+        type: string
+        default: "./_actions/src/git-tasks.sh"
       script_hugo_site:
         description: "Run script (hugo-site)"
         type: string
@@ -41,6 +65,30 @@ on:
         description: "Run script (gh-publish)"
         type: string
         default: "./_actions/src/gh-publish.sh"
+      in_dir:
+        description: "Source directory"
+        type: string
+        default: "./src"
+      out_dir:
+        description: "Destination directory"
+        type: string
+        default: "./.devdoc-out"
+      out_cache:
+        description: "Documentation cache"
+        type: string
+        default: "devdocs"
+      devdocs_repo:
+        description: "Development documentation repo"
+        type: string
+        required: true
+      devdocs_branch:
+        description: "Development documentation branch"
+        type: string
+        required: true
+      devdocs_tag:
+        description: "Development documentation tag"
+        type: string
+        required: true
       gh_bin_source:
         description: "gh binary (host)"
         type: string
@@ -116,14 +164,26 @@ on:
 
 env:
   RUN_ID: "${{ inputs.run_id }}"
+  DOCKERFILE_TEMPLATE_GENERATE_DOCS: "${{ inputs.dockerfile_template_generate_docs }}"
+  DOCKERFILE_GENERATE_DOCS: "${{ inputs.dockerfile_generate_docs }}"
+  DOCKERFILE_TEMPLATE_GIT_TASKS: "${{ inputs.dockerfile_template_generate_docs }}"
+  DOCKERFILE_GIT_TASKS: "${{ inputs.dockerfile_generate_docs }}"
   DOCKERFILE_TEMPLATE_HUGO_SITE: "${{ inputs.dockerfile_template_hugo_site }}"
   DOCKERFILE_HUGO_SITE: "${{ inputs.dockerfile_hugo_site }}"
   DOCKERFILE_TEMPLATE_GH_PUBLISH: "${{ inputs.dockerfile_template_gh_publish }}"
   DOCKERFILE_GH_PUBLISH: "${{ inputs.dockerfile_gh_publish }}"
   DOCKERFILE_SCRIPTS_PATH: "./_actions/src"
   WORK_DIR: "${{ inputs.work_dir }}"
+  SCRIPT_GENERATE_DOCS: "${{ inputs.script_generate_docs }}"
+  SCRIPT_GIT_TASKS: "${{ inputs.script_git_tasks }}"
   SCRIPT_HUGO_SITE: "${{ inputs.script_hugo_site }}"
   SCRIPT_GH_PUBLISH: "${{ inputs.script_gh_publish }}"
+  IN_DIR: "${{ inputs.in_dir }}"
+  OUT_DIR: "${{ inputs.out_dir }}"
+  OUT_CACHE: "${{ inputs.out_cache }}"
+  DEVDOCS_REPO: "${{ inputs.devdocs_repo }}"
+  DEVDOCS_BRANCH: "${{ inputs.devdocs_branch }}"
+  DEVDOCS_TAG: "${{ inputs.devdocs_tag }}"
   GH_BIN_SOURCE: "${{ inputs.gh_bin_source }}"
   GH_BIN_DEST: "${{ inputs.gh_bin_dest }}"
   GH_BIN_PATH: "${{ inputs.gh_bin_path }}"
@@ -144,12 +204,80 @@ env:
   GH_PAGES_BRANCH: "${{ inputs.gh_pages_branch }}"
 
 jobs:
+  generate-docs:
+    concurrency:
+      group: "actions/generate-docs-${{ inputs.run_id }}"
+      cancel-in-progress: true
+    uses: ekotik/sh.wrap/.github/workflows/generate-docs.yml@actions
+    with:
+      run_id: "${{ inputs.run_id }}"
+      dockerfile_template: "${{ inputs.dockerfile_template_generate_docs }}"
+      dockerfile: "${{ inputs.dockerfile_generate_docs }}"
+      work_dir: "${{ inputs.work_dir }}"
+      script: "${{ inputs.script_generate_docs }}"
+      in_dir: "${{ inputs.in_dir }}"
+      out_dir: "${{ inputs.out_dir }}"
+      out_cache: "${{ inputs.out_cache }}"
+      out_cache_dir: "${{ inputs.out_dir }}"
+  docs-publish:
+    permissions:
+      contents: write
+    concurrency:
+      group: "actions/docs-publish-${{ inputs.run_id }}"
+      cancel-in-progress: true
+    needs:
+      - generate-docs
+    uses: ekotik/sh.wrap/.github/workflows/gh-publish.yml@v0.0.0-actions
+    with:
+      run_id: "${{ inputs.run_id }}"
+      dockerfile_template: "${{ inputs.dockerfile_template_gh_publish }}"
+      dockerfile: "${{ inputs.dockerfile_gh_publish }}"
+      work_dir: "${{ inputs.work_dir }}"
+      script: "${{ inputs.script_gh_publish }}"
+      gh_bin_source: "${{ inputs.gh_bin_source }}"
+      gh_bin_dest: "${{ inputs.gh_bin_dest }}"
+      gh_bin_path: "${{ inputs.gh_bin_path }}"
+      gh_repo: "${{ inputs.gh_repo }}"
+      gh_hash: "${{ inputs.gh_hash }}"
+      gh_build_args: "${{ inputs.gh_build_args }}"
+      gh_pages_repo: "${{ inputs.devdocs_repo }}"
+      gh_pages_branch: "${{ inputs.devdocs_branch }}"
+      public_dir: "${{ inputs.out_dir }}"
+      public_cache: "${{ inputs.out_cache }}"
+  tag-update:
+    permissions:
+      contents: write
+    concurrency:
+      group: "actions/tag-update-${{ inputs.run_id }}"
+      cancel-in-progress: true
+    needs:
+      - docs-publish
+    uses: ekotik/sh.wrap/.github/workflows/git-tasks.yml@actions
+    with:
+      run_id: "${{ inputs.run_id }}"
+      dockerfile_template: "${{ inputs.dockerfile_template_git_tasks }}"
+      dockerfile: "${{ inputs.dockerfile_git_tasks }}"
+      work_dir: "${{ inputs.work_dir }}"
+      script: "${{ inputs.script_git_tasks }}"
+      gh_bin_source: "${{ inputs.gh_bin_source }}"
+      gh_bin_dest: "${{ inputs.gh_bin_dest }}"
+      gh_bin_path: "${{ inputs.gh_bin_path }}"
+      gh_repo: "${{ inputs.gh_repo }}"
+      gh_hash: "${{ inputs.gh_hash }}"
+      gh_build_args: "${{ inputs.gh_build_args }}"
+      git_repo: "${{ inputs.devdocs_repo }}"
+      git_branch: "${{ inputs.devdocs_branch }}"
+      git_commands: |
+        git tag --force ${{ inputs.devdocs_tag }} ${{ inputs.devdocs_branch }}
+        git push origin ${{ inputs.devdocs_tag }} --force
   hugo-site:
     permissions:
       contents: write
     concurrency:
       group: "actions/hugo-site-${{ inputs.run_id }}"
       cancel-in-progress: true
+    needs:
+      - tag-update
     uses: ekotik/sh.wrap/.github/workflows/hugo-site.yml@v0.0.0-actions
     with:
       run_id: "${{ inputs.run_id }}"
