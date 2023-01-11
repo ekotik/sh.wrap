@@ -43,7 +43,7 @@ module:
       disabled: false
       mounts:
         - source: "./doc/actions/"
-          target: "content/docs/actions/"
+          target: "content/docs/dev/actions/"
     - path: "github.com/ekotik/sh.wrap/doc/project"
       disabled: false
       mounts:
