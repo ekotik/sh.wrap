@@ -9,9 +9,9 @@
 title: Docker images and scripts
 date: 2022-10-26T05:20:14+03:00
 aliases:
-  - /actions/docker/docker.md
-  - /actions/docker/docker.org
-url: /actions/docker/docker.html
+  - /docs/dev/actions/docker/docker.md
+  - /docs/dev/actions/docker/docker.org
+url: /docs/dev/actions/docker/docker.html
 tags: ["actions", "development", "docker"]
 ---
 #+end_export
