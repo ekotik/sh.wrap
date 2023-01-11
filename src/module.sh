@@ -1,8 +1,10 @@
 #!/bin/bash
 # sh.wrap - module system for bash
 
-# module.sh
-# Core of sh.wrap module system.
+## # module.sh
+##
+## Core of sh.wrap module system.
+##
 
 # shellcheck source=src/util.sh
 source "${SHWRAP_INIT_DIR}"/util.sh

@@ -1,8 +1,10 @@
 #!/bin/bash
 # sh.wrap - module system for bash
 
-# common.sh
-# Common global, environment variables and function definitions for them.
+## # common.sh
+##
+## Common global, environment variables and function definitions for them.
+##
 
 # environment variables
 declare -g _SHWRAP_ID
@@ -51,6 +53,10 @@ declare -ag _shwrap_modules_stack
 # update global scope
 [[ -v _shwrap_scope[.] ]] || _shwrap_scope+=([.]=$(declare -px))
 
+## ## `__shwrap_clean`
+##
+## Reset internal structures to the initialization state.
+##
 function __shwrap_clean()
 {
 	declare -Ag _shwrap_modules=()
