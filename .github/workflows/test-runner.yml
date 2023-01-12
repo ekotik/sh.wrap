@@ -67,7 +67,7 @@ jobs:
   test-runner:
     concurrency:
       group: "test-runner/test-runner-${{ inputs.run_id }}"
-      cancel-in-progress: true
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout"
