@@ -31,9 +31,10 @@ source "${SHWRAP_INIT_DIR}"/common.sh
 function __shwrap_path()
 {
 	local path="$1"
-	local dir=$(realpath ./)
+	local dir
+	dir=$(realpath ./)
 	local part
-	while IFS= read -d "/" part; do
+	while IFS= read -r -d "/" part; do
 		if [[ "${part}" == "" ]] || [[ "${part}" == "." ]]; then
 			continue
 		elif [[ "${part}" == ".." ]]; then
