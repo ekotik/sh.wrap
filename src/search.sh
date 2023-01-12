@@ -11,28 +11,69 @@ source "${SHWRAP_INIT_DIR}"/common.sh
 
 ## ## `__shwrap_path`
 ##
-## Concatenate an absolute path of a current working directory with a module
-## name.
+## Make a given path an absolute path relative to a current working directory.
 ##
 ## ### Synopsis
 ##
 ## ```shell
-## __shwrap_path __shwrap_module
+## __shwrap_path path
 ## ```
 ##
 ## ### Parameters
 ##
-## - `__shwrap_module` \
+## - `path` \
+##   Path.
+##
+## ### Return
+##
+## Absolute path.
+##
+function __shwrap_path()
+{
+	local path="$1"
+	local dir=$(realpath ./)
+	local part
+	while IFS= read -d "/" part; do
+		if [[ "${part}" == "" ]] || [[ "${part}" == "." ]]; then
+			continue
+		elif [[ "${part}" == ".." ]]; then
+			dir="${dir%/*}"
+		else
+			dir="${dir}"/"${part}"
+		fi
+	done <<< "${__shwrap_module}/"
+	echo "${dir}" | sed -Ee 's|/+|/|'
+}
+
+## ## `__shwrap_realpath`
+##
+## Print the resolved module path.
+##
+## ### Synopsis
+##
+## ```shell
+## __shwrap_realpath __shwrap_path
+## ```
+##
+## ### Parameters
+##
+## - `__shwrap_path` \
 ##   Module name.
 ##
 ## ### Return
 ##
-## Module path.
+## Resolved module path.
 ##
-function __shwrap_path()
+## ### Exit status
+##
+## `0` - success
+## `1` - otherwise
+##
+function __shwrap_realpath()
 {
-	local __shwrap_module="$1"
-	realpath -qsm "${__shwrap_module}"
+	local __shwrap_path="$1"
+	[[ -e "${__shwrap_path}" ]] || [[ -L "${__shwrap_path}" ]] || return 1
+	realpath "${__shwrap_path}"
 }
 
 ## ## `__shwrap_search`
@@ -66,7 +107,7 @@ function __shwrap_search()
 	local __shwrap_module="$1"
 	local __shwrap_module_hash __shwrap_module_name __shwrap_module_path
 	local module_dir
-	__shwrap_module_path=$(__shwrap_path "${__shwrap_module}")
+	__shwrap_module_path=$(__shwrap_realpath "${__shwrap_module}")
 	__shwrap_log "__shwrap_search: search '${__shwrap_module}'" >&2
 	# check absolute path
 	if [[ "${__shwrap_module}" == "${__shwrap_module_path}" ]]; then
@@ -79,7 +120,7 @@ function __shwrap_search()
 		__shwrap_module_name="${_shwrap_modules_names[${__shwrap_module_hash}]}"
 		__shwrap_module_path="${_shwrap_modules_paths[${__shwrap_module_name}]}"
 		module_dir=$(dirname "${__shwrap_module_path}")
-		if realpath -qse "${module_dir}"/"${__shwrap_module}"; then
+		if __shwrap_realpath "${module_dir}"/"${__shwrap_module}"; then
 			return 0
 		fi
 	fi
@@ -96,7 +137,7 @@ function __shwrap_search()
 					path=$(dirname "${__shwrap_module_path}")/"${module_dir}"/"${__shwrap_module}"
 				fi
 			fi
-			if realpath -qse "${path}"; then
+			if __shwrap_realpath "${path}"; then
 				return 0
 			fi
 		done
@@ -109,14 +150,14 @@ function __shwrap_search()
 				__shwrap_module_name="${_shwrap_modules_names[${__shwrap_module_hash}]}"
 				__shwrap_module_path="${_shwrap_modules_paths[${__shwrap_module_name}]}"
 				module_dir=$(dirname "${__shwrap_module_path}")
-				if realpath -qse "${module_dir}"/"${__shwrap_module}"; then
+				if __shwrap_realpath "${module_dir}"/"${__shwrap_module}"; then
 					return 0
 				fi
 			done
 		fi
 		# default
 		if [[ -v SHWRAP_MODULE_PATH ]]; then
-			if realpath -qse "${SHWRAP_MODULE_PATH}"/"${__shwrap_module}"; then
+			if __shwrap_realpath "${SHWRAP_MODULE_PATH}"/"${__shwrap_module}"; then
 				return 0
 			fi
 		fi
