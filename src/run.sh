@@ -163,7 +163,7 @@ function __shwrap__run()
 						SHWRAP_MODULE_DEBUG="${SHWRAP_MODULE_DEBUG}" \
 						SHWRAP_MODULE_LOG="${SHWRAP_MODULE_LOG}" \
 						SHWRAP_INIT_DIR="${SHWRAP_INIT_DIR}" \
-						"${SHELL}" --noprofile --norc \
+						bash --noprofile --norc \
 						"${SHWRAP_TMP_PATH}"/"${SHWRAP_ID}"_"${__shwrap_module_hash}"_run.sh "$@"
 					eval "exec ${fd_scope}>&-"
 				}
@@ -265,7 +265,7 @@ function __shwrap_cache()
 						SHWRAP_MODULE_DEBUG="${SHWRAP_MODULE_DEBUG}" \
 						SHWRAP_MODULE_LOG="${SHWRAP_MODULE_LOG}" \
 						SHWRAP_INIT_DIR="${SHWRAP_INIT_DIR}" \
-						"${SHELL}" --noprofile --norc \
+						bash --noprofile --norc \
 						"${SHWRAP_TMP_PATH}"/"${SHWRAP_ID}"_"${__shwrap_module_hash}"_cache.sh
 					eval "exec ${fd_out}>&-"
 				}
