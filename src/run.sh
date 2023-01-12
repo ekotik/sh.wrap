@@ -176,8 +176,12 @@ function __shwrap__run()
 		eval "exec ${fd_out}>&-"
 	}
 	eval "exec ${fd_scope}<&-"
-	unset '_shwrap_fds["${fd_scope}"]'
-	unset '_shwrap_fds["${fd_out}"]'
+	# shellcheck disable=SC2184
+	# expected value
+	unset _shwrap_fds["${fd_scope}"]
+	# shellcheck disable=SC2184
+	# expected value
+	unset _shwrap_fds["${fd_out}"]
 
 	return "${__shwrap_ret}"
 }
@@ -278,8 +282,12 @@ function __shwrap_cache()
 		eval "exec ${fd_out}>&-"
 	}
 	eval "exec ${fd_scope}<&-"
-	unset '_shwrap_fds["${fd_scope}"]'
-	unset '_shwrap_fds["${fd_out}"]'
+	# shellcheck disable=SC2184
+	# expected value
+	unset _shwrap_fds["${fd_scope}"]
+	# shellcheck disable=SC2184
+	# expected value
+	unset _shwrap_fds["${fd_out}"]
 
 	return "${__shwrap_ret}"
 }
