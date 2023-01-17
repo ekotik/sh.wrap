@@ -69,6 +69,7 @@ jobs:
       group: "test-runner/test-runner-${{ inputs.run_id }}"
       cancel-in-progress: false
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: "Checkout"
         uses: actions/checkout@v3
