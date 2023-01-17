@@ -98,9 +98,9 @@ jobs:
       build_args: "${{ inputs.gh_build_args }}"
       go_bin: "${{ inputs.gh_bin_source }}"
       use_cache: true
-  tasks:
+  git-tasks:
     concurrency:
-      group: "git-tasks/tasks-${{ inputs.run_id }}"
+      group: "git-tasks/git-tasks-${{ inputs.run_id }}"
       cancel-in-progress: true
     permissions:
       contents: write

@@ -44,7 +44,7 @@ on:
       out_cache_dir:
         description: "Documentation cache directory"
         type: string
-        default: "./.doc-out"
+        default: "./.devdoc-out"
 
 env:
   DOCKERFILE_SCRIPTS_PATH: "./_actions/src"
