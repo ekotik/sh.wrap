@@ -22,7 +22,7 @@ jobs:
     concurrency:
       group: "test/test-shellcheck-${{ github.ref }}"
       cancel-in-progress: true
-    uses: ekotik/sh.wrap/.github/workflows/test-shellcheck.yml@actions
+    uses: ekotik/sh.wrap/.github/workflows/test-shellcheck-hub.yml@actions
     with:
       run_id: "test-shellcheck-test-${{ github.ref }}"
       dirs: "./src\n./test"
