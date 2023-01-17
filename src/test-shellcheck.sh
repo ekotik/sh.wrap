@@ -63,7 +63,7 @@ files=()
 for src_dir in "${dirs[@]}"; do
 	while IFS=$'\0' read -d $'\0' -r src_file; do
 		files+=("${src_file}")
-	done < <(find ./"${src_dir}" -name '*.sh' -print0)
+	done < <(find ./"${src_dir}" -name '*.sh' -print0 | grep -zv '/test_data/')
 done
 
 # run shellcheck
