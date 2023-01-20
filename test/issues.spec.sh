@@ -14,4 +14,5 @@ This test checks GH issues.
 test__issues()
 {
 	env -u VERBOSE "$0" "${BASH_SOURCE[0]%/*}"/issues/scope.sh
+	env -u VERBOSE "$0" "${BASH_SOURCE[0]%/*}"/issues/links.sh
 }

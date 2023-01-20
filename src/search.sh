@@ -11,7 +11,7 @@ source "${SHWRAP_INIT_DIR}"/common.sh
 
 ## ## `__shwrap_path`
 ##
-## Make a given path an absolute path relative to a current working directory.
+## Make a given path a path relative to an absolute path.
 ##
 ## ### Synopsis
 ##
@@ -22,7 +22,7 @@ source "${SHWRAP_INIT_DIR}"/common.sh
 ## ### Parameters
 ##
 ## - `path` \
-##   Path.
+##   Absolute path.
 ##
 ## ### Return
 ##
@@ -30,9 +30,9 @@ source "${SHWRAP_INIT_DIR}"/common.sh
 ##
 function __shwrap_path()
 {
-	local path="$1"
-	local dir
-	dir=$(realpath ./)
+	local dir="$1"
+	local _dir="$1"
+	local path="$2"
 	local part
 	while IFS= read -r -d "/" part; do
 		if [[ "${part}" == "" ]] || [[ "${part}" == "." ]]; then
@@ -42,8 +42,8 @@ function __shwrap_path()
 		else
 			dir="${dir}"/"${part}"
 		fi
-	done <<< "${__shwrap_module}/"
-	echo "${dir}" | sed -Ee 's|/+|/|'
+	done <<< "${path}/"
+	echo "${dir}" | sed -Ee 's|/+|/|g'
 }
 
 ## ## `__shwrap_realpath`
@@ -53,13 +53,13 @@ function __shwrap_path()
 ## ### Synopsis
 ##
 ## ```shell
-## __shwrap_realpath __shwrap_path
+## __shwrap_realpath __shwrap_name
 ## ```
 ##
 ## ### Parameters
 ##
 ## - `__shwrap_path` \
-##   Module name.
+##   Module path.
 ##
 ## ### Return
 ##
@@ -73,8 +73,15 @@ function __shwrap_path()
 function __shwrap_realpath()
 {
 	local __shwrap_path="$1"
-	[[ -e "${__shwrap_path}" ]] || [[ -L "${__shwrap_path}" ]] || return 1
-	realpath "${__shwrap_path}"
+	if [[ -e "${__shwrap_path}" ]]; then
+		if [[ "${__shwrap_path}" =~ ^/ ]]; then
+			__shwrap_path "/" "${__shwrap_path}"
+		else
+			__shwrap_path "$(pwd)" "${__shwrap_path}"
+		fi
+		return 0
+	fi
+	return 1
 }
 
 ## ## `__shwrap_search`
@@ -111,7 +118,8 @@ function __shwrap_search()
 	__shwrap_module_path=$(__shwrap_realpath "${__shwrap_module}")
 	__shwrap_log "__shwrap_search: search '${__shwrap_module}'" >&2
 	# check absolute path
-	if [[ "${__shwrap_module}" == "${__shwrap_module_path}" ]]; then
+	if [[ "$(__shwrap_path "/" "${__shwrap_module}")" == \
+		  "${__shwrap_module_path}" ]]; then
 		printf '%s' "${__shwrap_module_path}"
 		return 0
 	fi
@@ -164,5 +172,5 @@ function __shwrap_search()
 		fi
 	fi
 	# fallback
-	__shwrap_path "${__shwrap_module}"
+	__shwrap_path "$(pwd)" "${__shwrap_module}"
 }
