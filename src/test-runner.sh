@@ -65,11 +65,11 @@ microspec_args="$*"
 LAST_ERROR="microspec executable not found"
 [[ -f "${microspec}" ]] || $live_or_die
 
-echo '::group::Run tests | gh_echo'
+echo '::group::Run tests' | gh_echo
 
 # run tests
 LAST_ERROR="test running failed"
-env -i bash -c "${microspec} ${microspec_args}" || $live_or_die
+env -i VERBOSE=true bash -c "${microspec} ${microspec_args}" || $live_or_die
 
 echo '::endgroup::' | gh_echo
 
