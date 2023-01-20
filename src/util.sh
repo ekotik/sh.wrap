@@ -6,32 +6,75 @@
 ## Utility functions.
 ##
 
-## ## `__shwrap_scope`
+## ## `__shwrap_filter`
 ##
-## Read and re-declare global variables with reserved and shell specific
-## variables removed.
+## Read and filter declared variables with reserved and shell specific variables
+## removed.
+##
+## #### sh.wrap special variables
+##
+## All variables with `_shwrap_` or `_SHWRAP_` in a name.
+##
+## #### Special bash variables
+##
+## _ BASH BASHOPTS BASHPID BASH_ALIASES BASH_ARGC BASH_ARGV BASH_ARGV0 BASH_CMDS
+## BASH_COMMAND BASH_COMPAT BASH_ENV BASH_EXECUTION_STRING BASH_LINENO
+## BASH_LOADABLES_PATH BASH_REMATCH BASH_SOURCE BASH_SUBSHELL BASH_VERSINFO
+## BASH_VERSION BASH_XTRACEFD
+##
+## #### Special environment variables
+##
+## CHILD_MAX COLUMNS COMP_CWORD COMP_LINE COMP_POINT COMP_TYPE COMP_KEY
+## ~~COMP_WORDBREAKS~~ COMP_WORDS COMPREPLY COPROC DIRSTACK EMACS ENV
+## EPOCHREALTIME EPOCHSECONDS EUID EXECIGNORE FCEDIT FIGNORE FUNCNAME FUNCNEST
+## GLOBIGNORE GROUPS histchars HISTCMD HISTCONTROL HISTFILE HISTFILESIZE
+## HISTIGNORE HISTSIZE HISTTIMEFORMAT HOSTFILE HOSTNAME HOSTTYPE IGNOREEOF
+## INPUTRC INSIDE_EMACS LANG LC_ALL LC_COLLATE LC_CTYPE LC_MESSAGES LC_NUMERIC
+## LC_TIME LINENO LINES MACHTYPE MAILCHECK MAPFILE OLDPWD OPTERR OSTYPE
+## PIPESTATUS POSIXLY_CORRECT PPID PROMPT_COMMAND PROMPT_DIRTRIM PS0 PS3 PS4 PWD
+## RANDOM READLINE_ARGUMENT READLINE_LINE READLINE_MARK READLINE_POINT REPLY
+## SECONDS SHELL SHELLOPTS SHLVL SRANDOM TIMEFORMAT TMOUT TMPDIR UID
 ##
 ## ### Return
 ##
-## Global variable definitions without reserved and shell specific variables.
+## Filtered variable declarations.
 ##
-function __shwrap_scope()
+function __shwrap_filter()
 {
-	declare -p | grep -vE '_+shwrap_.*|_+SHWRAP_.*|BASHOPTS|BASH_ARGC|BASH_ARGV|BASH_LINENO|BASH_SOURCE|BASH_VERSINFO|EUID|FUNCNAME|GROUPS|PPID|SHELLOPTS|UID' | __shwrap_declare
+	local __shwrap_prefix="^declare[[:space:]][-fFgIpaAilnrtux]+[[:space:]]"
+	local __shwrap_special='_+shwrap_.*|_+SHWRAP_.*'
+	local __shwrap_bash_special='_|BASH|BASHOPTS|BASHPID|BASH_ALIASES|BASH_ARGC|BASH_ARGV|BASH_ARGV0|BASH_CMDS|BASH_COMMAND|BASH_COMPAT|BASH_ENV|BASH_EXECUTION_STRING|BASH_LINENO|BASH_LOADABLES_PATH|BASH_REMATCH|BASH_SOURCE|BASH_SUBSHELL|BASH_VERSINFO|BASH_VERSION|BASH_XTRACEFD'
+	local __shwrap_env_special='CHILD_MAX|COLUMNS|COMP_CWORD|COMP_LINE|COMP_POINT|COMP_TYPE|COMP_KEY|COMP_WORDS|COMPREPLY|COPROC|DIRSTACK|EMACS|ENV|EPOCHREALTIME|EPOCHSECONDS|EUID|EXECIGNORE|FCEDIT|FIGNORE|FUNCNAME|FUNCNEST|GLOBIGNORE|GROUPS|histchars|HISTCMD|HISTCONTROL|HISTFILE|HISTFILESIZE|HISTIGNORE|HISTSIZE|HISTTIMEFORMAT|HOSTFILE|HOSTNAME|HOSTTYPE|IGNOREEOF|INPUTRC|INSIDE_EMACS|LANG|LC_ALL|LC_COLLATE|LC_CTYPE|LC_MESSAGES|LC_NUMERIC|LC_TIME|LINENO|LINES|MACHTYPE|MAILCHECK|MAPFILE|OLDPWD|OPTERR|OSTYPE|PIPESTATUS|POSIXLY_CORRECT|PPID|PROMPT_COMMAND|PROMPT_DIRTRIM|PS0|PS3|PS4|PWD|RANDOM|READLINE_ARGUMENT|READLINE_LINE|READLINE_MARK|READLINE_POINT|REPLY|SECONDS|SHELL|SHELLOPTS|SHLVL|SRANDOM|TIMEFORMAT|TMOUT|TMPDIR|UID'
+	local __shwrap_suffix="="
+	grep -vE "${__shwrap_prefix}(${__shwrap_special}|${__shwrap_bash_special}|${__shwrap_env_special})${__shwrap_suffix}"
 }
 
 ## ## `__shwrap_declare`
 ##
-## Read variable definitions. and declare them as global.
+## Read variable declarations and re-declare them as global.
 ##
 ## ### Return
 ##
-## - Global variable definitions.
+## - Global variable declarations.
 ##
 function __shwrap_declare()
 {
-	sed -e 's/declare --/declare -g/' |
-		sed -E 's/declare -([^ -]+)/declare -\1g/'
+	sed -e 's/^declare --/declare -g/' |
+		sed -E 's/^declare -([^ -]+)/declare -\1g/'
+}
+
+## ## `__shwrap_scope`
+##
+## Read, filter and re-declare variables as global with reserved and shell
+## specific variables removed.
+##
+## ### Return
+##
+## Global variable declarations.
+##
+function __shwrap_scope()
+{
+	declare -p | __shwrap_filter | __shwrap_declare
 }
 
 ## ## `__shwrap_name_is_function`
