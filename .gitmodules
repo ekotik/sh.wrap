@@ -5,3 +5,4 @@
 [submodule "microspec"]
 	path = test/microspec
 	url = https://github.com/technocrime/microspec
+	branch = v1.9.3-dev-technocrime
